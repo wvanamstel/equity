@@ -1,6 +1,5 @@
 import pandas as pd
 import Quandl
-import queueclose
 
 from datetime import date
 from events import Tick

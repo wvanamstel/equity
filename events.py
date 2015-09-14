@@ -1,7 +1,4 @@
-class Event(object):
-    pass
-
-class Tick(Event):
+class Tick(object):
     def __init__(self, instrument, bid, ask, close, time_stamp):
         self.instrument = instrument
         self.bid = bid
@@ -24,7 +21,7 @@ class Tick(Event):
         return str(self)
 
 
-class Signal(Event):
+class Signal(object):
     def __init__(self, instrument, order, side, time_stamp):
         self.instrument = instrument
         self.order = order
@@ -33,7 +30,7 @@ class Signal(Event):
         self.event_type = 'SIGNAL'
 
     def __str__(self):
-        out = print('Time: {}, Event: {}, Side: {}, Order: {}, Instrument: {}').format(str(self.time_stamp),
+        out = 'Time: {}, Event: {}, Side: {}, Order: {}, Instrument: {}'.format(str(self.time_stamp),
                                                                                       str(self.event_type),
                                                                                       str(self.side),
                                                                                       str(self.order),
@@ -45,7 +42,7 @@ class Signal(Event):
         return str(self)
 
 
-class Order(Event):
+class Order(object):
     def __init__(self, instrument, order, size, side, time_stamp):
         self.instrument = instrument
         self.order = order
@@ -55,7 +52,7 @@ class Order(Event):
         self.event_type = 'ORDER'
 
     def __str__(self):
-        out = print('Time: {}, Event: {}, Side: {}, Size: {}, Order: {}, Instrument: {}').format(str(self.time_stamp),
+        out = 'Time: {}, Event: {}, Side: {}, Size: {}, Order: {}, Instrument: {}'.format(str(self.time_stamp),
                                                                                                   str(self.event_type),
                                                                                                   str(self.side),
                                                                                                   str(self.size),
