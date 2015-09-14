@@ -8,7 +8,7 @@ class Backtest(object):
         self.instruments = instruments
         self.events = queue.Queue()
         self.ticker = data_handler(quotes=self.instruments, event_queue=self.events)
-        # self.strategy = strategy(self.instruments, self.events, **strategy_params)
+        self.strategy = strategy(self.instruments, self.events, **strategy_params)
         self.equity = equity
         self.heartbeat = heartbeat
         self.max_iters = max_iters
@@ -26,7 +26,12 @@ class Backtest(object):
             else:
                 if event is not None:
                     if event.event_type == 'TICK':
-                        print(event)
+                        self.strategy.calc_signal(event)
+                    elif event.event_type == 'SIGNAL':
+                        self.execution.execute_signal(event)
+                    elif event.event_type == 'ORDER':
+                        self.execution.execute_order(event)
+
             time.sleep(self.heartbeat)
             iters += 1
 

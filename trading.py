@@ -12,6 +12,6 @@ fetcher = FetchPrices()
 names=['vxx', 'xiv']
 qts = fetcher.get_quotes()
 
-bt = Backtest(instruments=qts, data_handler=PricesFromDataFrame, strategy=None, strategy_params=None,
+bt = Backtest(instruments=qts, data_handler=PricesFromDataFrame, strategy=TestStrategy, strategy_params=None,
               portfolio=None, execution=None)
 bt.start_backtest()
