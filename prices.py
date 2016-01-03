@@ -1,8 +1,10 @@
 import pandas as pd
+import numpy as np
 import Quandl
 
 from datetime import date
 from events import Tick
+
 
 class Prices(object):
     def _price_structure(self):
@@ -13,6 +15,7 @@ class Prices(object):
         )
 
         return quotes
+
 
 class PricesFromDataFrame(Prices):
     def __init__(self, event_queue, quotes):
@@ -38,7 +41,7 @@ class PricesFromDataFrame(Prices):
         name = row['Name']
         close_price = row['Close']
 
-        tick_event = Tick(instrument=name, time_stamp=time_stamp, close=close_price, bid=1, ask=1)
+        tick_event = Tick(instrument=name, time_stamp=time_stamp, close=close_price, open=None, high=None, low=None)
 
         self.event_queue.put(tick_event)
 
