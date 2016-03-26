@@ -10,6 +10,6 @@ class BaseModel(Model):
 
 class Forex(BaseModel):
     forex_pair = columns.Text(primary_key=True)
-    tick_time = columns.Time(primary_key=True)
-    bid = columns.Double()
-    ask = columns.Double()
+    tick_time = columns.DateTime(primary_key=True)
+    bid = columns.Float()
+    ask = columns.Float()
