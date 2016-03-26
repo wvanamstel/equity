@@ -11,5 +11,6 @@ class BaseModel(Model):
 class Forex(BaseModel):
     forex_pair = columns.Text(primary_key=True)
     tick_time = columns.DateTime(primary_key=True)
+    date = columns.Date(partition_key=True)
     bid = columns.Float()
     ask = columns.Float()
