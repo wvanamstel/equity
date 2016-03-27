@@ -38,4 +38,8 @@ def download_files():
                 else:
                     print("Error retrieving file:{0}".format(file_name))
 
-download_files()
+
+def insert_cassandra():
+    with open("~/data/forex/USDJPY-2016-02.csv", "r") as f:
+        for line in f:
+            print(line)
