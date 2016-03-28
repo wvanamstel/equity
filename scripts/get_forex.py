@@ -4,6 +4,9 @@ import datetime as dt
 
 from cql.models import Forex
 from cql.cluster import CqlClient
+from decimal import *
+
+getcontext().prec = 5
 
 
 def download_files():
@@ -44,14 +47,19 @@ def download_files():
 
 
 def insert_cassandra():
-    cql_client = CqlClient(Forex)
+    _ = CqlClient(Forex)
     with open("/home/w/data/forex/USDJPY-2016-02.csv", "r") as f_in:
-        for line in f_in:
+        for i, line in enumerate(f_in):
             d = dict()
             line = line.rstrip().split(",")
+            date_time = dt.datetime.strptime(line[1], "%Y%m%d %H:%M:%S.%f")
+            # date = dt.date.isoformat(date_time)
+            date = dt.datetime.date(date_time)
             d = {"forex_pair": line[0],
-                 "tick_time": dt.datetime.strptime(line[1], "%Y%m%d %H:%M:%S.%f"),
-                 "bid": line[2],
-                 "ask":line[3],
+                 "tick_time": date_time,
+                 "date": date,
+                 "bid": Decimal(line[2]),
+                 "ask": Decimal(line[3]),
                  }
             Forex.create(**d)
+            print("Inserting row {} into C* model {}".format(i, Forex))
