@@ -53,7 +53,6 @@ def insert_cassandra():
             d = dict()
             line = line.rstrip().split(",")
             date_time = dt.datetime.strptime(line[1], "%Y%m%d %H:%M:%S.%f")
-            # date = dt.date.isoformat(date_time)
             date = dt.datetime.date(date_time)
             d = {"forex_pair": line[0],
                  "tick_time": date_time,
