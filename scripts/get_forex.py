@@ -1,5 +1,9 @@
 import requests
 import zipfile
+import datetime as dt
+
+from cql.models import Forex
+from cql.cluster import CqlClient
 
 
 def download_files():
@@ -40,6 +44,14 @@ def download_files():
 
 
 def insert_cassandra():
-    with open("/home/w/data/forex/USDJPY-2016-02.csv", "r") as f:
-        for line in f:
-            print(line)
+    cql_client = CqlClient(Forex)
+    with open("/home/w/data/forex/USDJPY-2016-02.csv", "r") as f_in:
+        for line in f_in:
+            d = dict()
+            line = line.rstrip().split(",")
+            d = {"forex_pair": line[0],
+                 "tick_time": dt.datetime.strptime(line[1], "%Y%m%d %H:%M:%S.%f"),
+                 "bid": line[2],
+                 "ask":line[3],
+                 }
+            Forex.create(**d)
