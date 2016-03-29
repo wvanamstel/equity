@@ -49,9 +49,9 @@ def download_files():
                     print("Error retrieving file:{0}".format(file_name))
 
 
-def insert_cassandra():
-    _ = CqlClient(Forex)
-    with open("/home/w/data/forex/USDJPY-2016-02.csv", "r") as f_in:
+def insert_cassandra(file_name):
+    files = fetch_file_names("*-2016-02.csv")
+    with open(file_name, "r") as f_in:
         for i, line in enumerate(f_in):
             d = dict()
             line = line.rstrip().split(",")
@@ -66,3 +66,7 @@ def insert_cassandra():
             Forex.create(**d)
             if i % 1000 == 0:
                 print("Inserting row {} into C* model {}".format(i, Forex))
+
+def fetch_file_names(mask):
+    file_path = "/home/w/data/forex/"
+    return(glob.glob(file_path + mask))
