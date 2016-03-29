@@ -60,8 +60,8 @@ def insert_cassandra(file_name):
             d = {"forex_pair": line[0],
                  "tick_time": date_time,
                  "date": date,
-                 "bid": Decimal(line[2]),
-                 "ask": Decimal(line[3]),
+                 "bid": float(line[2]),
+                 "ask": float(line[3]),
                  }
             Forex.create(**d)
             if i % 1000 == 0:
@@ -70,3 +70,4 @@ def insert_cassandra(file_name):
 def fetch_file_names(mask):
     file_path = "/home/w/data/forex/"
     return(glob.glob(file_path + mask))
+

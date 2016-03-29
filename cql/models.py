@@ -12,5 +12,5 @@ class Forex(BaseModel):
     forex_pair = columns.Text(primary_key=True)
     tick_time = columns.DateTime(primary_key=True)
     date = columns.Date(partition_key=True)
-    bid = columns.Decimal()
-    ask = columns.Decimal()
+    bid = columns.Double()  # Considered using Decimal, for space considerations use double
+    ask = columns.Double()
