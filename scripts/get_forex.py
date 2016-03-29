@@ -1,10 +1,13 @@
 import requests
 import zipfile
 import datetime as dt
+import glob
+import multiprocessing as mp
 
 from cql.models import Forex
 from cql.cluster import CqlClient
 from decimal import *
+
 
 getcontext().prec = 5
 
@@ -61,4 +64,5 @@ def insert_cassandra():
                  "ask": Decimal(line[3]),
                  }
             Forex.create(**d)
-            print("Inserting row {} into C* model {}".format(i, Forex))
+            if i % 1000 == 0:
+                print("Inserting row {} into C* model {}".format(i, Forex))
