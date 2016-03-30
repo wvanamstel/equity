@@ -67,6 +67,7 @@ def insert_cassandra(file_name):
             if i % 1000 == 0:
                 print("Inserting row {} into C* model {}".format(i, Forex))
 
+
 def fetch_file_names(mask):
     file_path = "/home/w/data/forex/"
     return(glob.glob(file_path + mask))
