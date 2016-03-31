@@ -55,12 +55,8 @@ class GetForex(object):
                         print("Error retrieving file:{0}".format(file_name))
 
     def insert_cassandra(self, file_name):
-        # files = self.fetch_file_names("*-2016-02.csv")
-        # for file_name in files:
         with open(file_name, "r") as f_in:
-            print(file_name)
             for i, line in enumerate(f_in):
-                print(line, "num:{}".format(i))
                 d = dict()
                 line = line.rstrip().split(",")
                 date_time = dt.datetime.strptime(line[1], "%Y%m%d %H:%M:%S.%f")
