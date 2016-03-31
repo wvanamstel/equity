@@ -11,9 +11,13 @@ from decimal import *
 
 getcontext().prec = 5
 
+
 class GetForex(object):
     def __init__(self):
-        pass
+        try:
+            self.cl = CqlClient(Forex)
+        except Exception as e:
+            print("Error on C* init: {}".format(str(e)))
 
     def download_files(self):
         print("Enter currency pair, <enter> for all:")
@@ -51,9 +55,8 @@ class GetForex(object):
                     else:
                         print("Error retrieving file:{0}".format(file_name))
 
-
     def insert_cassandra(self, file_name):
-        files = fetch_file_names("*-2016-02.csv")
+        files = self.fetch_file_names("*-2016-02.csv")
         with open(file_name, "r") as f_in:
             for i, line in enumerate(f_in):
                 d = dict()
@@ -70,8 +73,7 @@ class GetForex(object):
                 if i % 1000 == 0:
                     print("Inserting row {} into C* model {}".format(i, Forex))
 
-
     def fetch_file_names(self, mask):
         file_path = "/home/w/data/forex/"
-        return(glob.glob(file_path + mask))
+        return glob.glob(file_path + mask)
 
