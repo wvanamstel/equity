@@ -34,3 +34,4 @@ class SimpleSpread(Strategy):
         self.events_queue = events_queue
 
     def calc_signals(self):
+        pass
