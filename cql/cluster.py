@@ -2,6 +2,7 @@ from cassandra.cqlengine.management import drop_table, sync_table, create_keyspa
 from cassandra import cqlengine
 from cassandra.cqlengine import connection
 
+
 class CqlClient(object):
     def __init__(self, model):
         self.session = None
@@ -12,9 +13,9 @@ class CqlClient(object):
 
     def connect(self):
         # Close existing clusters and sessions first
-        if not connection.cluster.is_shutdown:
-            connection.cluster.shutdown()
-        if not connection.session.is_shutdown:
+        if connection.cluster and not connection.cluster.is_shutdown:
+                connection.cluster.shutdown()
+        if connection.session and not connection.session.is_shutdown:
             connection.session.shutdown()
         # Get fresh connection
         connection.setup(self.nodes, self.keyspace)
