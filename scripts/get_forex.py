@@ -56,7 +56,8 @@ class GetForex(object):
                         print("Error retrieving file:{0}".format(file_name))
 
     def insert_cassandra(self, file_name):
-        files = self.fetch_file_names("*-2016-02.csv")
+        # files = self.fetch_file_names("*-2016-02.csv")
+        # for file_name in files:
         with open(file_name, "r") as f_in:
             for i, line in enumerate(f_in):
                 d = dict()
@@ -71,9 +72,15 @@ class GetForex(object):
                      }
                 Forex.create(**d)
                 if i % 1000 == 0:
-                    print("Inserting row {} into C* model {}".format(i, Forex))
+                    print("Inserting row {} from file {} into C* model {}".format(i, file_name, Forex))
 
-    def fetch_file_names(self, mask):
+    @staticmethod
+    def fetch_file_names(mask):
         file_path = "/home/w/data/forex/"
         return glob.glob(file_path + mask)
+
+    def multi_proc_insert(self):
+        files = self.fetch_file_names(mask="*-2016-02.csv")
+        pool = mp.Pool()
+        pool.map(self.insert_cassandra, files)
 
