@@ -1,8 +1,6 @@
 import requests
 import zipfile
 import datetime as dt
-import glob
-import multiprocessing as mp
 
 from cql.models import Forex
 from cql.cluster import CqlClient
@@ -59,7 +57,9 @@ class GetForex(object):
         # files = self.fetch_file_names("*-2016-02.csv")
         # for file_name in files:
         with open(file_name, "r") as f_in:
+            print(file_name)
             for i, line in enumerate(f_in):
+                print(line, "num:{}".format(i))
                 d = dict()
                 line = line.rstrip().split(",")
                 date_time = dt.datetime.strptime(line[1], "%Y%m%d %H:%M:%S.%f")
@@ -71,16 +71,6 @@ class GetForex(object):
                      "ask": float(line[3]),
                      }
                 Forex.create(**d)
-                if i % 1000 == 0:
-                    print("Inserting row {} from file {} into C* model {}".format(i, file_name, Forex))
-
-    @staticmethod
-    def fetch_file_names(mask):
-        file_path = "/home/w/data/forex/"
-        return glob.glob(file_path + mask)
-
-    def multi_proc_insert(self):
-        files = self.fetch_file_names(mask="*-2016-02.csv")
-        pool = mp.Pool()
-        pool.map(self.insert_cassandra, files)
+                # if i % 1000 == 0:
+                print("Inserting row {} from file {} into C* model {}".format(i, file_name, Forex))
 
