@@ -4,8 +4,9 @@ from cassandra.cqlengine import connection
 
 
 class CqlClient(object):
-    def __init__(self, model):
+    def __init__(self, model, check_active=True):
         self.session = None
+        self.check_active = check_active # In multiprocessing inserts, each process needs its own C* session
         self.nodes = ["127.0.0.1"]
         self.keyspace = model.__keyspace__
         self.model = model
@@ -13,10 +14,11 @@ class CqlClient(object):
 
     def connect(self):
         # Close existing clusters and sessions first
-        if connection.cluster and not connection.cluster.is_shutdown:
-                connection.cluster.shutdown()
-        if connection.session and not connection.session.is_shutdown:
-            connection.session.shutdown()
+        if self.check_active:
+            if connection.cluster and not connection.cluster.is_shutdown:
+                    connection.cluster.shutdown()
+            if connection.session and not connection.session.is_shutdown:
+                connection.session.shutdown()
         # Get fresh connection
         connection.setup(self.nodes, self.keyspace)
 

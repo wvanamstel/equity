@@ -11,11 +11,12 @@ getcontext().prec = 5
 
 
 class GetForex(object):
-    def __init__(self):
-        try:
-            self.cl = CqlClient(Forex)
-        except Exception as e:
-            print("Error on C* init: {}".format(str(e)))
+    def __init__(self, cass_conn=True):
+        if cass_conn:
+            try:
+                self.cl = CqlClient(Forex)
+            except Exception as e:
+                print("Error on C* init: {}".format(str(e)))
 
     def download_files(self):
         print("Enter currency pair, <enter> for all:")
@@ -71,6 +72,6 @@ class GetForex(object):
                      "ask": float(line[3]),
                      }
                 Forex.create(**d)
-                # if i % 1000 == 0:
-                print("Inserting row {} from file {} into C* model {}".format(i, file_name, Forex))
+                if i % 1000 == 0:
+                    print("Inserting row {} from file {} into C* model {}".format(i, file_name, Forex))
 

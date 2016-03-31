@@ -1,26 +1,37 @@
 import multiprocessing as mp
 import glob
 from scripts.get_forex import GetForex
+from cql.cluster import CqlClient
+from cql.models import Forex
 
 
-def fetch_file_names(mask):
-    file_path = "/home/w/data/forex/"
-    return glob.glob(file_path + mask)
+class MultiProc(object):
+    def __init__(self, num_workers=None):
+        self.gf = GetForex(cass_conn=False)
+        self.file_names = self.fetch_file_names(mask="*-2016-02.csv")
+        if num_workers is None:
+            num_workers = len(self.file_names)
+        self.pool = mp.Pool(processes=num_workers, initializer=self.start_process)
 
+    @staticmethod
+    def fetch_file_names(mask):
+        file_path = "/home/w/data/forex/"
+        return glob.glob(file_path + mask)
 
-def start_process():
-    print("Starting process {}".format(mp.current_process().name))
+    @classmethod
+    def start_process(cls):
+        print("Starting process {}".format(mp.current_process().name))
+        CqlClient(Forex, check_active=False)
 
-if __name__ == "__main__":
-    gf = GetForex()
-    jobs = []
-    files = fetch_file_names(mask="*-2016-02.csv")
-    pool = mp.Pool(mp.cpu_count()*2, initializer=start_process)
-    pool.map(gf.insert_cassandra, files)
-    pool.close()
-    pool.join()
-    # for file in files:
-    #     p = mp.Process(target=gf.insert_cassandra, args=(file,))
-    #     jobs.append(p)
-    #     p.start()
-        # self.start_process()
+    def do_insert(self):
+        self.pool.map(self.gf.insert_cassandra, self.file_names)
+
+    def close_pool(self):
+        print("Closing pool")
+        self.pool.close()
+        self.pool.join()
+
+multi=MultiProc()
+multi.do_insert()
+multi.close_pool()
+
