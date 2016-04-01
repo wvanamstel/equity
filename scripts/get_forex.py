@@ -68,6 +68,6 @@ class GetForex(object):
                      "ask": float(line[3]),
                      }
                 Forex.create(**d)
-                if i % 1000 == 0:
+                if i % 10000 == 0:
                     print("Inserting row {} from file {} into C* model {}".format(i, file_name, Forex))
 
