@@ -1,8 +1,7 @@
 from cassandra.cqlengine.management import drop_table, sync_table, create_keyspace_simple
 from cassandra import cqlengine
 from cassandra.cqlengine import connection
-from cassandra.cluster import Cluster
-from cassandra.query import tuple_factory
+from cassandra.query import tuple_factory, dict_factory
 from cassandra.protocol import NumpyProtocolHandler
 
 
@@ -24,7 +23,7 @@ class CqlClient(object):
                 connection.session.shutdown()
         # Get fresh connection
         connection.setup(self.nodes, self.keyspace)
-        connection.cluster.tuple_factory = tuple_factory
+        connection.cluster.row_factory = dict_factory
         connection.cluster.client_protocol_handler = NumpyProtocolHandler
 
     def create_keyspace(self):
