@@ -4,6 +4,8 @@ import Quandl
 
 from datetime import date
 from events import Tick
+from cql.cluster import CqlClient
+from cql.models import *
 
 
 class Prices(object):
@@ -64,3 +66,15 @@ class FetchPrices(object):
             quotes[name]['Name'] = name
 
         return quotes
+
+class FetchCassPrices(object):
+    def __init__(self, model, instruments=None, start_date=None, end_date=date.today()):
+        self.model = model
+        self.instruments = instruments
+        self.start_date = start_date
+        self.end_date = end_date
+        self.connection = CqlClient(model)
+
+    def get_quotes(self):
+        for instrument in self.instruments:
+            query = self.model.filter(forex_pair=instrument)
