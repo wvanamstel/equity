@@ -11,10 +11,11 @@ getcontext().prec = 5
 
 
 class GetForex(object):
-    def __init__(self, cass_conn=True):
+    def __init__(self, model, cass_conn=True):
+        self.model = model
         if cass_conn:
             try:
-                self.cl = CqlClient(Forex)
+                self.cl = CqlClient(self.model)
             except Exception as e:
                 print("Error on C* init: {}".format(str(e)))
 
@@ -67,7 +68,7 @@ class GetForex(object):
                      "bid": float(line[2]),
                      "ask": float(line[3]),
                      }
-                Forex.create(**d)
+                self.model.create(**d)
                 if i % 10000 == 0:
-                    print("Inserting row {} from file {} into C* model {}".format(i, file_name, Forex))
+                    print("Inserting row {} from file {} into C* model {}".format(i, file_name, self.model.column_family_name()))
 
