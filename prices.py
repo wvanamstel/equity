@@ -68,13 +68,15 @@ class FetchPrices(object):
         return quotes
 
 class FetchCassPrices(object):
-    def __init__(self, model, instruments=None, start_date=None, end_date=date.today()):
+    def __init__(self, model=Forex):
         self.model = model
-        self.instruments = instruments
-        self.start_date = start_date
-        self.end_date = end_date
-        self.connection = CqlClient(model)
+        # self.instruments = instruments
+        # self.start_date = start_date
+        # self.end_date = end_date
+        self.connection = CqlClient(self.model)
+        # self.connection.connect()
 
-    def get_quotes(self):
-        for instrument in self.instruments:
-            query = self.model.filter(forex_pair=instrument)
+    def get_quotes(self, instrument, start_date, end_date=date.today(), model=self.model):
+        query = self.model.objects.limit(None).filter(forex_pair=instrument, date__gte=start_date, date__lte=end_date)
+        return query
+

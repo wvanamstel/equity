@@ -17,3 +17,5 @@ pair=pair.dropna()
 pair["spread"] = pair["vxx_close"]-pair["vxz_close"]
 pair["mean"]=pair["spread"].rolling_mean(window=60)
 pair["std"]=pair["spread"].rolling_std(window=60)
+
+b=df.append([dict(a) for a in s.all()])

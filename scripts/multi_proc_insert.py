@@ -8,7 +8,8 @@ from cql.models import Forex
 class MultiProc(object):
     def __init__(self, num_workers=None):
         self.gf = GetForex(cass_conn=False)
-        self.file_names = self.fetch_file_names(mask="*-2016-02.csv")
+        self.months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"]
+        self.file_names = self.fetch_file_names(mask="*-2015-12.csv")
         if num_workers is None:
             num_workers = len(self.file_names)
         self.pool = mp.Pool(processes=num_workers, initializer=self.start_process)
