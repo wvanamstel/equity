@@ -21,3 +21,10 @@ class Forex(BaseModel):
     tick_time = columns.DateTime(primary_key=True)
     bid = columns.Double()  # Considered using Decimal, for space considerations use double
     ask = columns.Double()
+
+class Metals(BaseModel):
+    asset = columns.Text(partition_key=True)
+    date = columns.Date(primary_key=True)
+    tick_time = columns.DateTime(primary_key=True)
+    last = columns.Double()
+    volume = columns.SmallInt()
