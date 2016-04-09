@@ -2,6 +2,7 @@ import requests
 import zipfile
 import datetime as dt
 import csv
+import calendar
 
 from cql.models import Forex
 from cql.cluster import CqlClient
@@ -79,7 +80,7 @@ class GetFutures(object):
     def __init__(self):
         self.session = requests.session()
 
-    def download_files(self, asset, start_date):
+    def download_files(self, asset, dates):
         # download tick data and serialise to csv
         assets = {"natgas":{"code": "NYMEX.NG",
                             "em": "18949",
@@ -106,15 +107,15 @@ class GetFutures(object):
                   "em": assets[asset]["em"],
                   "code": assets[asset]["code"],
                   "apply": "1",
-                  "from": "02.03.2016",
-                  "df": "2",
+                  "from": "01.03.2016",
+                  "df": "1",
                   "mf": "2",
                   "yf": "2016",
-                  "dt": "4",
+                  "dt": "31",
                   "mt": "2",
                   "yt": "2016",
-                  "to": "04.03.2016",
-                  "p": "1",
+                  "to": "31.03.2016",
+                  "p": "1",  # 1: tick; 2: 1 min
                   "f": "NYMEX.NG_160302_160304",
                   "e": ".csv",
                   "cn": "NYMEX.NG",
@@ -124,7 +125,7 @@ class GetFutures(object):
                   "mstimever": "0",
                   "sep": "1",
                   "sep2": "1",
-                  "datf": "6",
+                  "datf": "7",  # 7: last, 5: OHLCV
                   "at": "1",
                   "fsp": "0",  # s/b "1"?
                   }
@@ -135,5 +136,23 @@ class GetFutures(object):
         split_data = data.text.splitlines()
         with open(params["f"] + params["e"], "w", newline="") as f_out:
             csv_writer = csv.writer(f_out, delimiter=",", quoting=csv.QUOTE_NONE)
-            for row in split_data[0:20]:
+            for row in split_data:
                 csv_writer.writerow(row.split(","))
+
+        def get_files(years, months=None):
+            if months is None:
+                months = range(1, 13)
+            for year in years:
+                for month in months:
+                    first_day = "1"
+                    last_day = str(calendar.monthrange(int(year), month)[1])
+                    dates_dict = {"from": first_day + "." + str(month) + "." + str(year),
+                                  "to": last_day + "." + str(month) + "." + str(year),
+                                  "df": first_day,
+                                  "mf": str(month - 1),
+                                  "yf": str(year),
+                                  "dt": last_day,
+                                  "mt": str(month - 1),
+                                  "yt": str(year),
+                                  }
+                    print(dates_dict)
