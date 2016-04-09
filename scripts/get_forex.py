@@ -76,7 +76,7 @@ class GetForex(object):
 
 class GetFutures(object):
     def __init__(self):
-        pass
+        self.session = requests.session()
 
     def download_files(self, ticker, start_date):
         params = {"market": "24",
@@ -84,9 +84,16 @@ class GetFutures(object):
                   "code": "NYMEX.NG",
                   "apply": "1",
                   "from": "02.03.2016",
+                  "df": "2",
+                  "mf": "2",
+                  "yf": "2016",
+                  "dt": "4",
+                  "mt": "2",
+                  "yt": "2016",
                   "to": "04.03.2016",
                   "p": "1",
-                  "f": "",
+                  "f": "NYMEX.NG_160302_160304",
+                  "e": ".csv",
                   "cn": "NYMEX.NG",
                   "dtf": "1",
                   "tmf": "1",
@@ -98,4 +105,5 @@ class GetFutures(object):
                   "at": "1",
                   "fsp": "0",  # s/b "1"?
                   }
-        url = "http://195.128.78.52/NYMEX.NG_160308_160310.csv"
+        url = "http://195.128.78.52/export9.out"
+        data = self.session.get(url, params=params, allow_redirects=True)
