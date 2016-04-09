@@ -73,3 +73,29 @@ class GetForex(object):
                 if i % 10000 == 0:
                     print("Inserting {} from file {} into C* model {}".format(i, file_name, Forex.column_family_name()))
 
+
+class GetFutures(object):
+    def __init__(self):
+        pass
+
+    def download_files(self, ticker, start_date):
+        params = {"market": "24",
+                  "em": "18949",
+                  "code": "NYMEX.NG",
+                  "apply": "1",
+                  "from": "02.03.2016",
+                  "to": "04.03.2016",
+                  "p": "1",
+                  "f": "",
+                  "cn": "NYMEX.NG",
+                  "dtf": "1",
+                  "tmf": "1",
+                  "MSOR": "1",
+                  "mstimever": "0",
+                  "sep": "1",
+                  "sep2": "1",
+                  "datf": "6",
+                  "at": "1",
+                  "fsp": "0",  # s/b "1"?
+                  }
+        url = "http://195.128.78.52/NYMEX.NG_160308_160310.csv"
