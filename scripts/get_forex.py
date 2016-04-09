@@ -107,14 +107,14 @@ class GetFutures(object):
                   "em": assets[asset]["em"],
                   "code": assets[asset]["code"],
                   "apply": "1",
-                  "from": "01.03.2016",
-                  "df": "1",
-                  "mf": "2",
-                  "yf": "2016",
-                  "dt": "31",
-                  "mt": "2",
-                  "yt": "2016",
-                  "to": "31.03.2016",
+                  "from": dates["from"],
+                  "df": dates["df"],
+                  "mf": dates["mf"],
+                  "yf": dates["yf"],
+                  "dt": dates["dt"],
+                  "mt": dates["mt"],
+                  "yt": dates["yt"],
+                  "to": dates["to"],
                   "p": "1",  # 1: tick; 2: 1 min
                   "f": "NYMEX.NG_160302_160304",
                   "e": ".csv",
@@ -123,8 +123,8 @@ class GetFutures(object):
                   "tmf": "1",
                   "MSOR": "1",
                   "mstimever": "0",
-                  "sep": "1",
-                  "sep2": "1",
+                  "sep": "1", # comma sep
+                  "sep2": "1", # newline sep
                   "datf": "7",  # 7: last, 5: OHLCV
                   "at": "1",
                   "fsp": "0",  # s/b "1"?
