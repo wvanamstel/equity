@@ -1,6 +1,7 @@
 import requests
 import zipfile
 import datetime as dt
+import csv
 
 from cql.models import Forex
 from cql.cluster import CqlClient
@@ -107,3 +108,10 @@ class GetFutures(object):
                   }
         url = "http://195.128.78.52/export9.out"
         data = self.session.get(url, params=params, allow_redirects=True)
+
+        # write to csv
+        split_data = data.text.splitlines()
+        with open(params["f"] + params["e"], "w", newline="") as f_out:
+            csv_writer = csv.writer(f_out, delimiter=",", quoting=csv.QUOTE_NONE)
+            for row in split_data[0:20]:
+                csv_writer.writerow(row.split(","))
