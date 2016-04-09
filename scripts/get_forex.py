@@ -79,10 +79,32 @@ class GetFutures(object):
     def __init__(self):
         self.session = requests.session()
 
-    def download_files(self, ticker, start_date):
-        params = {"market": "24",
-                  "em": "18949",
-                  "code": "NYMEX.NG",
+    def download_files(self, asset, start_date):
+        # download tick data and serialise to csv
+        assets = {"natgas":{"code": "NYMEX.NG",
+                            "em": "18949",
+                            "market": "24"
+                            },
+                  "gold": {"code":"comex.GC",
+                           "em": "18953",
+                           "market": "24",
+                           },
+                  "wti": {"code": "NYMEX.CL",
+                          "em": "18948",
+                          "market": "24",
+                          },
+                  "brent": {"code": "ICE.BRN",
+                            "em": "19473",
+                            "market": "24",
+                            },
+                  "heating": {"code": "NYMEX.HO",
+                              "em": "18951",
+                              "market": "24",
+                              },
+                  }
+        params = {"market": assets[asset]["market"],
+                  "em": assets[asset]["em"],
+                  "code": assets[asset]["code"],
                   "apply": "1",
                   "from": "02.03.2016",
                   "df": "2",
