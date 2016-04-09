@@ -76,7 +76,9 @@ class FetchCassPrices(object):
         self.connection = CqlClient(self.model)
         # self.connection.connect()
 
-    def get_quotes(self, instrument, start_date, end_date=date.today(), model=self.model):
-        query = self.model.objects.limit(None).filter(forex_pair=instrument, date__gte=start_date, date__lte=end_date)
+    def get_quotes(self, instrument, start_date, end_date=date.today(), model=None):
+        if model is None:
+            model = self.model
+        query = model.objects.limit(None).filter(forex_pair=instrument, date__gte=start_date, date__lte=end_date)
         return query
 
