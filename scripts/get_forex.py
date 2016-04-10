@@ -80,8 +80,15 @@ class GetForex(object):
 class GetFutures(object):
     def __init__(self):
         self.session = requests.session()
+        self.energy = ["natgas", "heating", "petrol", "wti", "brent"]
+        self.metals = ["gold", "silver", "aluminium", "lead", "zinc", "palladium", "platinum", "tin", "nickel", "copper"]
+        self.softs = ["wheat", "sugar"]
+        self.indices = ["spmini", "sp500", "djmini", "nq100", "dj50"]
+        self.tsys = ["tsy2y", "tsy5y", "tsy10y", "tsy30y"]
+        self.big_ones = ["wti", "spmini", "djmini", "nq100"]
+        self.all_futures = self.energy + self.metals + self.softs + self.indices + self.tsys
 
-    def download_files(self, asset, dates, resolution=None):
+    def download_files(self, asset, dates, resolution="ticks"):
         """
         download tick data and serialise to csv
         :param asset: string of asset name
@@ -93,10 +100,11 @@ class GetFutures(object):
             res = {"p": "2", "datf": "7", "path": "mins"}
         else:
             res = {"p": "1", "datf": "7", "path": "ticks"}
-        assets = {"natgas":{"code": "NYMEX.NG",
-                            "em": "18949",
-                            "market": "24"
-                            },
+
+        assets = {"natgas": {"code": "NYMEX.NG",
+                             "em": "18949",
+                             "market": "24"
+                             },
                   "gold": {"code":"comex.GC",
                            "em": "18953",
                            "market": "24",
@@ -198,6 +206,7 @@ class GetFutures(object):
                              "market": "26",
                              },
                   }
+
         params = {"market": assets[asset]["market"],
                   "em": assets[asset]["em"],
                   "code": assets[asset]["code"],
@@ -225,17 +234,29 @@ class GetFutures(object):
                   "fsp": "0",  # s/b "1"?
                   }
 
+        # Test if path exists and create if not
+        home_path = os.path.expanduser("~")
+        file_path = home_path + "/data/futures/" + asset + "/" + res["path"] + "/"
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
+
+        # split up into weeks, downloader only does 1MM rows per download
+        if asset in self.big_ones and resolution == "ticks":
+            for tup in [("1", "7"), ("8", "14"), ("15", "21"), ("22", dates["dt"])]:
+                params["df"] = tup[0]
+                params["dt"] = tup[1]
+                params["f"] = asset + "_" + tup[0] + "." + str(int(dates["mf"])+1) + "." + dates["yf"] + "_" + \
+                              tup[1] + "." + str(int(dates["mf"])+1) + "." + dates["yf"]
+                self.download_and_write_to_csv(file_path, params)
+        else:
+            self.download_and_write_to_csv(file_path, params)
+
+    def download_and_write_to_csv(self, file_path, params):
         print("Downloading {}".format(params["f"]))
         url = "http://195.128.78.52/export9.out"
         data = self.session.get(url, params=params, allow_redirects=True)
-
         # write to csv
-        home_path = os.path.expanduser("~")
-        file_path = home_path + "/data/futures/" + asset + "/" + res["path"] + "/"
-        # Test if path exists and create if not
-        if not os.path.exists(file_path):
-            os.makedirs(file_path)
-        print("Writing {}".format(file_path))
+        print("Writing {}".format(file_path + params["f"] + params["e"]))
         with open(file_path + params["f"] + params["e"], "w", newline="") as f_out:
             csv_writer = csv.writer(f_out, delimiter=",", quoting=csv.QUOTE_NONE)
             for row in data.text.splitlines():
@@ -267,3 +288,21 @@ class GetFutures(object):
                                   "yt": str(year),
                                   }
                     self.download_files(asset, dates_dict, resolution)
+
+    def get_all(self):
+        years = range(2008, 2016)
+        self.get_files(self.all_futures, years, resolution="ticks")
+        self.get_files(self.all_futures, years, resolution="mins")
+        years = range(2002, 2008)
+        self.get_files(["sp500"], years, resolution="ticks")
+        self.get_files(["sp500"], years, resolution="mins")
+
+    def get_previous_month(self):
+        year = dt.datetime.today().year
+        month = dt.datetime.today().month
+        self.get_files(self.all_futures, year, month, resolution="ticks")
+        self.get_files(self.all_futures, year, month, resolution="mins")
+
+
+gf=GetFutures()
+gf.get_all()
