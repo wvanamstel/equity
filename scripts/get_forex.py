@@ -3,6 +3,7 @@ import zipfile
 import datetime as dt
 import csv
 import calendar
+import os
 
 from cql.models import Forex
 from cql.cluster import CqlClient
@@ -223,11 +224,18 @@ class GetFutures(object):
                   "at": "1",
                   "fsp": "0",  # s/b "1"?
                   }
+
+        print("Downloading {}".format(params["f"]))
         url = "http://195.128.78.52/export9.out"
         data = self.session.get(url, params=params, allow_redirects=True)
 
         # write to csv
-        file_path = "/home/w/data/futures/" + asset + "/" + res["path"] + "/"
+        home_path = os.path.expanduser("~")
+        file_path = home_path + "/data/futures/" + asset + "/" + res["path"] + "/"
+        # Test if path exists and create if not
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
+        print("Writing {}".format(file_path))
         with open(file_path + params["f"] + params["e"], "w", newline="") as f_out:
             csv_writer = csv.writer(f_out, delimiter=",", quoting=csv.QUOTE_NONE)
             for row in data.text.splitlines():
