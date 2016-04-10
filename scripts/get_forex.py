@@ -81,11 +81,17 @@ class GetFutures(object):
         self.session = requests.session()
 
     def download_files(self, asset, dates, resolution=None):
+        """
+        download tick data and serialise to csv
+        :param asset: string of asset name
+        :param dates: dict
+        :param resolution: string mins
+        :return: write csv files
+        """
         if resolution == "mins":
             res = {"p": "2", "datf": "7", "path": "mins"}
         else:
             res = {"p": "1", "datf": "7", "path": "ticks"}
-            # download tick data and serialise to csv
         assets = {"natgas":{"code": "NYMEX.NG",
                             "em": "18949",
                             "market": "24"
@@ -106,6 +112,74 @@ class GetFutures(object):
                               "em": "18951",
                               "market": "24",
                               },
+                  "petrol": {"code": "NYMEX.XRB",
+                             "em": "18950",
+                             "market": "24",
+                             },
+                  "silver": {"code": "comex.SI",
+                             "em": "18952",
+                             "market": "24",
+                             },
+                  "copper": {"code": "LME.cooper",  # sic
+                             "em": "18931",
+                             "market": "24",
+                             },
+                  "aluminium": {"code": "LME.Alum",
+                                "em": "18930",
+                                "market": "24",
+                                },
+                  "nickel": {"code": "LME.Nickel",
+                             "em": "18932",
+                             "market": "24",
+                             },
+                  "tin": {"code": "LME.Tin",
+                          "em": "18934",
+                          "market": "24",
+                          },
+                  "palladium": {"code": "NYMEX.PA",
+                                "em": "18959",
+                                "market": "24",
+                                },
+                  "platinum": {"code": "NYMEX.PL",
+                               "em": "18947",
+                               "market": "24",
+                               },
+                  "lead": {"code": "LME.Lead",
+                           "em": "18933",
+                           "market": "24",
+                           },
+                  "zinc": {"code": "LME.Zinc",
+                           "em": "18935",
+                           "market": "24",
+                           },
+                  "wheat": {"code": "US3.ZW",
+                            "em": "74453",
+                            "market": "24",
+                            },
+                  "sugar": {"code": "US2.ZB",
+                            "em": "74454",
+                            "market": "24",
+                            },
+                  "spmini": {"code": "MINISANDP500",
+                             "em": "13944",
+                             "market": "7",
+                             },
+                  "sp500": {"code": "SANDP-FUT",  # since 2002
+                            "em": "108",
+                            "market": "7",
+                            },
+                  "djmini": {"code": "DANDI.MINIFUT",
+                             "em": "21718",
+                             "market": "7",
+                             },
+                  "nq100": {"code": "NQ-100-FUT",
+                            "em": "21719",
+                            "market": "7",
+                            },
+                  "dj50": {"code": "DSX",
+                           "em": "12997",
+                           "market": "7",
+                           },
                   }
         params = {"market": assets[asset]["market"],
                   "em": assets[asset]["em"],
@@ -120,10 +194,8 @@ class GetFutures(object):
                   "yt": dates["yt"],
                   "to": dates["to"],
                   "p": res["p"],  # 1: tick; 2: 1 min
-                  # "f": "NYMEX.NG_160302_160304",
                   "f": asset + "_" + dates["from"] + "_" + dates["to"],
                   "e": ".csv",
-                  # "cn": "NYMEX.NG",
                   "cn": assets[asset]["code"],
                   "dtf": "1",
                   "tmf": "1",
@@ -145,20 +217,29 @@ class GetFutures(object):
             for row in data.text.splitlines():
                 csv_writer.writerow(row.split(","))
 
-    def get_files(self, asset, years, months=None, resolution=None):
+    def get_files(self, assets, years, months=None, resolution=None):
+        """
+        call this method to start downloading csv files
+        :param assets: [string], asset names
+        :param years: list of ints, years to download
+        :param months: list of ints, specify months, none==all months
+        :param resolution: mins or ticks
+        :return: calls downloader
+        """
         if months is None:
             months = range(1, 13)
-        for year in years:
-            for month in months:
-                first_day = "1"
-                last_day = str(calendar.monthrange(int(year), month)[1])
-                dates_dict = {"from": first_day + "." + str(month) + "." + str(year),
-                              "to": last_day + "." + str(month) + "." + str(year),
-                              "df": first_day,
-                              "mf": str(month - 1),
-                              "yf": str(year),
-                              "dt": last_day,
-                              "mt": str(month - 1),
-                              "yt": str(year),
-                              }
-                self.download_files(asset, dates_dict, resolution)
+        for asset in assets:
+            for year in years:
+                for month in months:
+                    first_day = "1"
+                    last_day = str(calendar.monthrange(int(year), month)[1])
+                    dates_dict = {"from": first_day + "." + str(month) + "." + str(year),
+                                  "to": last_day + "." + str(month) + "." + str(year),
+                                  "df": first_day,
+                                  "mf": str(month - 1),  #months are 0==jan for some reason
+                                  "yf": str(year),
+                                  "dt": last_day,
+                                  "mt": str(month - 1),
+                                  "yt": str(year),
+                                  }
+                    self.download_files(asset, dates_dict, resolution)
