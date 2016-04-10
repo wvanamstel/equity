@@ -80,8 +80,12 @@ class GetFutures(object):
     def __init__(self):
         self.session = requests.session()
 
-    def download_files(self, asset, dates):
-        # download tick data and serialise to csv
+    def download_files(self, asset, dates, resolution=None):
+        if resolution == "mins":
+            res = {"p": "2", "datf": "7", "path": "mins"}
+        else:
+            res = {"p": "1", "datf": "7", "path": "ticks"}
+            # download tick data and serialise to csv
         assets = {"natgas":{"code": "NYMEX.NG",
                             "em": "18949",
                             "market": "24"
@@ -115,17 +119,19 @@ class GetFutures(object):
                   "mt": dates["mt"],
                   "yt": dates["yt"],
                   "to": dates["to"],
-                  "p": "1",  # 1: tick; 2: 1 min
-                  "f": "NYMEX.NG_160302_160304",
+                  "p": res["p"],  # 1: tick; 2: 1 min
+                  # "f": "NYMEX.NG_160302_160304",
+                  "f": asset + "_" + dates["from"] + "_" + dates["to"],
                   "e": ".csv",
-                  "cn": "NYMEX.NG",
+                  # "cn": "NYMEX.NG",
+                  "cn": assets[asset]["code"],
                   "dtf": "1",
                   "tmf": "1",
                   "MSOR": "1",
                   "mstimever": "0",
                   "sep": "1", # comma sep
                   "sep2": "1", # newline sep
-                  "datf": "7",  # 7: last, 5: OHLCV
+                  "datf": res["datf"],  # 7: last, 5: OHLCV
                   "at": "1",
                   "fsp": "0",  # s/b "1"?
                   }
@@ -133,26 +139,26 @@ class GetFutures(object):
         data = self.session.get(url, params=params, allow_redirects=True)
 
         # write to csv
-        split_data = data.text.splitlines()
-        with open(params["f"] + params["e"], "w", newline="") as f_out:
+        file_path = "/home/w/data/futures/" + asset + "/" + res["path"] + "/"
+        with open(file_path + params["f"] + params["e"], "w", newline="") as f_out:
             csv_writer = csv.writer(f_out, delimiter=",", quoting=csv.QUOTE_NONE)
-            for row in split_data:
+            for row in data.text.splitlines():
                 csv_writer.writerow(row.split(","))
 
-        def get_files(years, months=None):
-            if months is None:
-                months = range(1, 13)
-            for year in years:
-                for month in months:
-                    first_day = "1"
-                    last_day = str(calendar.monthrange(int(year), month)[1])
-                    dates_dict = {"from": first_day + "." + str(month) + "." + str(year),
-                                  "to": last_day + "." + str(month) + "." + str(year),
-                                  "df": first_day,
-                                  "mf": str(month - 1),
-                                  "yf": str(year),
-                                  "dt": last_day,
-                                  "mt": str(month - 1),
-                                  "yt": str(year),
-                                  }
-                    print(dates_dict)
+    def get_files(self, asset, years, months=None, resolution=None):
+        if months is None:
+            months = range(1, 13)
+        for year in years:
+            for month in months:
+                first_day = "1"
+                last_day = str(calendar.monthrange(int(year), month)[1])
+                dates_dict = {"from": first_day + "." + str(month) + "." + str(year),
+                              "to": last_day + "." + str(month) + "." + str(year),
+                              "df": first_day,
+                              "mf": str(month - 1),
+                              "yf": str(year),
+                              "dt": last_day,
+                              "mt": str(month - 1),
+                              "yt": str(year),
+                              }
+                self.download_files(asset, dates_dict, resolution)
