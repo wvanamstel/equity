@@ -29,7 +29,7 @@ class Forex(BaseModel):
     ask = columns.Double()
 
 
-class Metals(BaseModel):
+class FuturesTicks(BaseModel):
     ticker = columns.Text(partition_key=True)
     date = columns.Date(primary_key=True)
     tick_time = columns.DateTime(primary_key=True)
@@ -37,9 +37,9 @@ class Metals(BaseModel):
     volume = columns.SmallInt()
 
 
-class Futures(MinuteModel):
+class FuturesMins(MinuteModel):
     pass
 
 
-class Equities(MinuteModel):
+class EquitiesMins(MinuteModel):
     pass

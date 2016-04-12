@@ -5,7 +5,7 @@ import csv
 import calendar
 import os
 
-from cql.models import Forex, Futures
+from cql.models import Forex, FuturesTicks
 from cql.cluster import CqlClient
 from decimal import *
 
