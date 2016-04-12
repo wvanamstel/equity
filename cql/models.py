@@ -11,7 +11,14 @@ class BaseModel(Model):
 class MinuteModel(Model):
     __keyspace__ = "minutedata"
     __options__ = {"compaction": {"class": "LeveledCompactionStrategy"}}
-    __abstract__ = True
+    ticker = columns.Text(partition_key=True)
+    date = columns.Date(primary_key=True)
+    time = columns.DateTime(primary_key=True)
+    open = columns.Double()
+    high = columns.Double()
+    low = columns.Double()
+    close = columns.Double()
+    volume = columns.SmallInt()
 
 
 class Forex(BaseModel):
@@ -31,11 +38,8 @@ class Metals(BaseModel):
 
 
 class Futures(MinuteModel):
-    ticker = columns.Text(partition_key=True)
-    date = columns.Date(primary_key=True)
-    time = columns.DateTime(primary_key=True)
-    open = columns.Double()
-    high = columns.Double()
-    low = columns.Double()
-    close = columns.Double()
-    volume = columns.SmallInt()
+    pass
+
+
+class Equities(MinuteModel):
+    pass
