@@ -5,7 +5,7 @@ import csv
 import calendar
 import os
 
-from cql.models import Forex
+from cql.models import Forex, Futures
 from cql.cluster import CqlClient
 from decimal import *
 
@@ -40,7 +40,7 @@ class GetForex(object):
         months_verbose = {"01": "JANUARY", "02": "FEBRUARY", "03": "MARCH", "04": "APRIL", "05": "MAY", "06": "JUNE",
                           "07": "JULY", "08": "AUGUST", "09": "SEPTEMBER", "10": "OCTOBER", "11": "NOVEMBER",
                           "12": "DECEMBER"}
-        file_path = "/home/w/data/forex/"
+        file_path = os.path.expanduser("~") + "/data/forex/"
         for year in years:
             for month in months:
                 for pair in cur_pairs:
@@ -61,7 +61,6 @@ class GetForex(object):
     def insert_cassandra(self, file_name):
         with open(file_name, "r") as f_in:
             for i, line in enumerate(f_in):
-                # ipdb.set_trace()
                 d = dict()
                 line = line.rstrip().split(",")
                 date_time = dt.datetime.strptime(line[1], "%Y%m%d %H:%M:%S.%f")
@@ -81,12 +80,12 @@ class GetFutures(object):
     def __init__(self):
         self.session = requests.session()
         self.energy = ["natgas", "heating", "petrol", "wti", "brent"]
-        self.metals = ["gold", "silver", "aluminium", "lead", "zinc", "palladium", "platinum", "tin", "nickel", "copper"]
-        self.softs = ["wheat", "sugar"]
+        self.metals = ["silver", "aluminium", "lead", "zinc", "palladium", "platinum", "tin", "nickel", "copper"]
+        self.ags = ["wheat", "sugar"]
         self.indices = ["spmini", "sp500", "djmini", "nq100", "dj50"]
         self.tsys = ["tsy2y", "tsy5y", "tsy10y", "tsy30y"]
         self.big_ones = ["wti", "spmini", "djmini", "nq100"]
-        self.all_futures = self.energy + self.metals + self.softs + self.indices + self.tsys
+        self.all_futures = self.energy + self.metals + self.ags + self.indices + self.tsys
 
     def download_files(self, asset, dates, resolution="ticks"):
         """
@@ -291,18 +290,31 @@ class GetFutures(object):
 
     def get_all(self):
         years = range(2008, 2016)
-        self.get_files(self.all_futures, years, resolution="ticks")
+        # self.get_files(self.all_futures, years, resolution="ticks")
         self.get_files(self.all_futures, years, resolution="mins")
         years = range(2002, 2008)
         self.get_files(["sp500"], years, resolution="ticks")
         self.get_files(["sp500"], years, resolution="mins")
 
     def get_previous_month(self):
+        # Use in cron job to add most recent monthly data
         year = dt.datetime.today().year
         month = dt.datetime.today().month
         self.get_files(self.all_futures, year, month, resolution="ticks")
         self.get_files(self.all_futures, year, month, resolution="mins")
 
-
+    def insert_cassandra(self, file_name):
+        with open(file_name, "r") as f_in:
+            for i, line in enumerate(f_in):
+                line = line.rstrip().split(",")
+                date_time = dt.datetime.strptime(line[1] + " " + line[2], "%Y%m%d %H%M%S")
+                date = dt.datetime.date(date_time)
+                ticker_pos = line[0].find(".")
+                payload = {"ticker": line[0][ticker_pos+1:],
+                           "date": date,
+                           "tick_time": date_time,
+                           "last": float(line[3]),
+                           "volume": int(line[4]),
+                           }
 gf=GetFutures()
-gf.get_all()
+gf.get_files(gf.indices, range(2008,2016),resolution="ticks")
