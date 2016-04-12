@@ -1,5 +1,6 @@
 import multiprocessing as mp
 import glob
+import os
 from scripts.get_forex import GetForex
 from cql.cluster import CqlClient
 from cql.models import Forex
@@ -16,7 +17,7 @@ class MultiProc(object):
 
     @staticmethod
     def fetch_file_names(mask):
-        file_path = "/home/w/data/forex/"
+        file_path = os.path.expanduser("~") + "/data/forex/"
         return glob.glob(file_path + mask)
 
     @classmethod
