@@ -5,7 +5,7 @@ import csv
 import calendar
 import os
 
-from cql.models import Forex, FuturesTicks
+from cql.models import Forex, FuturesTicks, FuturesMins
 from cql.cluster import CqlClient
 from decimal import *
 
@@ -255,11 +255,15 @@ class GetFutures(object):
         url = "http://195.128.78.52/export9.out"
         data = self.session.get(url, params=params, allow_redirects=True)
         # write to csv
-        print("Writing {}".format(file_path + params["f"] + params["e"]))
-        with open(file_path + params["f"] + params["e"], "w", newline="") as f_out:
+        file_name = file_path + params["f"] + params["e"]
+        print("Writing {}".format(file_name))
+        with open(file_name, "w", newline="") as f_out:
             csv_writer = csv.writer(f_out, delimiter=",", quoting=csv.QUOTE_NONE)
             for row in data.text.splitlines():
                 csv_writer.writerow(row.split(","))
+
+        self.insert_cassandra(file_name, ticks=True)
+
 
     def get_files(self, assets, years, months=None, resolution=None):
         """
@@ -310,11 +314,28 @@ class GetFutures(object):
                 date_time = dt.datetime.strptime(line[1] + " " + line[2], "%Y%m%d %H%M%S")
                 date = dt.datetime.date(date_time)
                 ticker_pos = line[0].find(".")
-                payload = {"ticker": line[0][ticker_pos+1:],
-                           "date": date,
-                           "tick_time": date_time,
-                           "last": float(line[3]),
-                           "volume": int(line[4]),
-                           }
+                if "ticks" in file_name:
+                    payload = {"ticker": line[0][ticker_pos+1:],
+                               "date": date,
+                               "tick_time": date_time,
+                               "last": float(line[3]),
+                               "volume": int(line[4]),
+                               }
+                    model = FuturesTicks
+                else:
+                    payload = {"ticker": line[0][ticker_pos+1:],
+                               "date": date,
+                               "tick_time": date_time,
+                               "open": float(line[3]),
+                               "high": float(line[4]),
+                               "low": float(line[5]),
+                               "close": float(line[6]),
+                               "volume": int(line[7]),
+                               }
+                    model = FuturesMins
+
+                model.create(**payload)
+                if i % 10000 == 0:
+                    print("Inserting {} from file {} into C* model {}".format(i, file_name, model.column_family_name()))
 gf=GetFutures()
 gf.get_files(gf.indices, range(2008,2016),resolution="ticks")
