@@ -312,6 +312,8 @@ class GetFutures(object):
 
     def insert_cassandra(self, file_name):
         with open(file_name, "r") as f_in:
+            # Get rid of header
+            _ = next(f_in)
             for i, line in enumerate(f_in):
                 line = line.rstrip().split(",")
                 date_time = dt.datetime.strptime(line[1] + " " + line[2], "%Y%m%d %H%M%S")
