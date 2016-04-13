@@ -354,9 +354,3 @@ class GetFutures(object):
         files = glob.glob(path + mask)
         for file in files:
             self.insert_cassandra(file)
-
-gf=GetFutures()
-gf.get_files(gf.indices, range(2008,2016),resolution="ticks")
-gf.get_files(["sp500"], range(2002, 2008), resolution="ticks")
-gf.get_files(["sp500"], range(2002, 2008), resolution="mins")
-
