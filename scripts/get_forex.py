@@ -4,6 +4,7 @@ import datetime as dt
 import csv
 import calendar
 import os
+import glob
 
 from cql.models import Forex, FuturesTicks, FuturesMins
 from cql.cluster import CqlClient
@@ -57,6 +58,8 @@ class GetForex(object):
                         zipfile.ZipFile.extractall(zip_file, path=file_path)
                     else:
                         print("Error retrieving file:{0}".format(file_name))
+
+                    self.insert_cassandra(file_path + file_name)
 
     def insert_cassandra(self, file_name):
         with open(file_name, "r") as f_in:
@@ -262,7 +265,7 @@ class GetFutures(object):
             for row in data.text.splitlines():
                 csv_writer.writerow(row.split(","))
 
-        self.insert_cassandra(file_name, ticks=True)
+        # self.insert_cassandra(file_name)
 
 
     def get_files(self, assets, years, months=None, resolution=None):
@@ -313,9 +316,10 @@ class GetFutures(object):
                 line = line.rstrip().split(",")
                 date_time = dt.datetime.strptime(line[1] + " " + line[2], "%Y%m%d %H%M%S")
                 date = dt.datetime.date(date_time)
-                ticker_pos = line[0].find(".")
+                ticker_pos_left = file_name.find("ticks/") + 6
+                ticker_pos_right = file_name.find("_")
                 if "ticks" in file_name:
-                    payload = {"ticker": line[0][ticker_pos+1:],
+                    payload = {"ticker": file_name[ticker_pos_left:ticker_pos_right],
                                "date": date,
                                "tick_time": date_time,
                                "last": float(line[3]),
@@ -323,7 +327,7 @@ class GetFutures(object):
                                }
                     model = FuturesTicks
                 else:
-                    payload = {"ticker": line[0][ticker_pos+1:],
+                    payload = {"ticker": file_name[ticker_pos_left:ticker_pos_right],
                                "date": date,
                                "tick_time": date_time,
                                "open": float(line[3]),
@@ -337,5 +341,22 @@ class GetFutures(object):
                 model.create(**payload)
                 if i % 10000 == 0:
                     print("Inserting {} from file {} into C* model {}".format(i, file_name, model.column_family_name()))
+
+    def insert_all(self):
+        # Convenience function to insert all files into c* models
+        mask = "*/ticks/*"
+        path = os.path.expanduser("~") + "/data/futures/"
+        files=glob.glob(path + mask)
+        for file in files:
+            self.insert_cassandra(file)
+
+        mask = "*/mins/*"
+        files = glob.glob(path + mask)
+        for file in files:
+            self.insert_cassandra(file)
+
 gf=GetFutures()
 gf.get_files(gf.indices, range(2008,2016),resolution="ticks")
+gf.get_files(["sp500"], range(2002, 2008), resolution="ticks")
+gf.get_files(["sp500"], range(2002, 2008), resolution="mins")
+
