@@ -331,7 +331,7 @@ class GetFutures(object):
                 else:
                     payload = {"ticker": file_name[ticker_pos_left:ticker_pos_right],
                                "date": date,
-                               "tick_time": date_time,
+                               "time": date_time,
                                "open": float(line[3]),
                                "high": float(line[4]),
                                "low": float(line[5]),
