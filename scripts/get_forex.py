@@ -5,6 +5,8 @@ import csv
 import calendar
 import os
 import glob
+import multiprocessing as mp
+import ipdb
 
 from cql.models import Forex, FuturesTicks, FuturesMins
 from cql.cluster import CqlClient
@@ -80,7 +82,7 @@ class GetForex(object):
 
 
 class GetFutures(object):
-    def __init__(self):
+    def __init__(self, cass_conn=True):
         self.session = requests.session()
         self.energy = ["natgas", "heating", "petrol", "wti", "brent"]
         self.metals = ["silver", "aluminium", "lead", "zinc", "palladium", "platinum", "tin", "nickel", "copper"]
@@ -89,6 +91,15 @@ class GetFutures(object):
         self.tsys = ["tsy2y", "tsy5y", "tsy10y", "tsy30y"]
         self.big_ones = ["wti", "spmini", "djmini", "nq100"]
         self.all_futures = self.energy + self.metals + self.ags + self.indices + self.tsys
+        if cass_conn:
+            try:
+                self.cl = CqlClient(FuturesMins)
+            except Exception as e:
+                print("Error on C* init: {}".format(str(e)))
+
+    def start_cass(self):
+        print("Starting process {}".format(mp.current_process().name))
+        CqlClient(FuturesMins, check_active=False)
 
     def download_files(self, asset, dates, resolution="ticks"):
         """
@@ -310,49 +321,64 @@ class GetFutures(object):
         self.get_files(self.all_futures, year, month, resolution="ticks")
         self.get_files(self.all_futures, year, month, resolution="mins")
 
-    def insert_cassandra(self, file_name):
-        with open(file_name, "r") as f_in:
-            # Get rid of header
-            _ = next(f_in)
-            for i, line in enumerate(f_in):
-                line = line.rstrip().split(",")
-                date_time = dt.datetime.strptime(line[1] + " " + line[2], "%Y%m%d %H%M%S")
-                date = dt.datetime.date(date_time)
-                ticker_pos_left = file_name.find("ticks/") + 6
-                ticker_pos_right = file_name.find("_")
-                if "ticks" in file_name:
-                    payload = {"ticker": file_name[ticker_pos_left:ticker_pos_right],
-                               "date": date,
-                               "tick_time": date_time,
-                               "last": float(line[3]),
-                               "volume": int(line[4]),
-                               }
-                    model = FuturesTicks
-                else:
-                    payload = {"ticker": file_name[ticker_pos_left:ticker_pos_right],
-                               "date": date,
-                               "time": date_time,
-                               "open": float(line[3]),
-                               "high": float(line[4]),
-                               "low": float(line[5]),
-                               "close": float(line[6]),
-                               "volume": int(line[7]),
-                               }
-                    model = FuturesMins
+    def insert_cassandra(self, file_names):
+        for file_name in file_names:
+            with open(file_name, "r") as f_in:
+                # Get rid of header
+                _ = next(f_in)
+                for i, line in enumerate(f_in):
+                    line = line.rstrip().split(",")
+                    date_time = dt.datetime.strptime(line[1] + " " + line[2], "%Y%m%d %H%M%S")
+                    date = dt.datetime.date(date_time)
+                    ticker_pos_right = file_name.find("_")
+                    if "ticks" in file_name:
+                        ticker_pos_left = file_name.find("ticks/") + 6
 
-                model.create(**payload)
-                if i % 10000 == 0:
-                    print("Inserting {} from file {} into C* model {}".format(i, file_name, model.column_family_name()))
+                        payload = {"ticker": file_name[ticker_pos_left:ticker_pos_right],
+                                   "date": date,
+                                   "tick_time": date_time,
+                                   "last": float(line[3]),
+                                   "volume": int(line[4]),
+                                   }
+                        model = FuturesTicks
+                    else:
+                        ticker_pos_left = file_name.find("mins/") + 5
+                        payload = {"ticker": file_name[ticker_pos_left:ticker_pos_right],
+                                   "date": date,
+                                   "time": date_time,
+                                   "open": float(line[3]),
+                                   "high": float(line[4]),
+                                   "low": float(line[5]),
+                                   "close": float(line[6]),
+                                   "volume": int(line[7]),
+                                   }
+                        model = FuturesMins
+                    model.create(**payload)
+                    if i % 10000 == 0:
+                        print("Inserting {} from file {} into C* model {}".format(i, file_name, model.column_family_name()))
 
-    def insert_all(self):
+    def insert_all(self, num_workers=8):
         # Convenience function to insert all files into c* models
         mask = "*/ticks/*"
         path = os.path.expanduser("~") + "/data/futures/"
         files=glob.glob(path + mask)
-        for file in files:
-            self.insert_cassandra(file)
 
+        num_files = len(files)
+        num_batch = int(num_files/num_workers)
+        num1 = range(0, num_files, num_batch)
+        num2 = range(num_batch, num_files + num_batch, num_batch)
+        file_tups = zip(num1, num2)
+        print("Initialising workers")
+        pool = mp.Pool(processes=num_workers, initializer=self.start_cass)
+        # for file in files:
+        #     self.insert_cassandra(file)
+
+        print("starting work")
         mask = "*/mins/*"
         files = glob.glob(path + mask)
-        for file in files:
-            self.insert_cassandra(file)
+        files_chunks = [files[i[0]:i[1]] for i in file_tups]
+        [pool.map_async(self.insert_cassandra, [chunk]) for chunk in files_chunks]
+        pool.close()
+        pool.join()
+        # for file in files:
+        #     self.insert_cassandra(file)
