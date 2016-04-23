@@ -23,25 +23,25 @@ class Tick(Event):
         return str(self)
 
 
-# class Signal(Event):
-#     def __init__(self, instrument, order, side, time_stamp):
-#         self.instrument = instrument
-#         self.order = order
-#         self.side = side  # buy/sell
-#         self.time_stamp = time_stamp
-#         self.event_type = 'SIGNAL'
-#
-#     def __str__(self):
-#         out = 'Time: {}, Event: {}, Side: {}, Order: {}, Instrument: {}'.format(str(self.time_stamp),
-#                                                                                       str(self.event_type),
-#                                                                                       str(self.side),
-#                                                                                       str(self.order),
-#                                                                                       str(self.instrument),
-#                                                                                       )
-#         return out
-#
-#     def __repr__(self):
-#         return str(self)
+class Signal(Event):
+    def __init__(self, instrument, order, side, time_stamp):
+        self.instrument = instrument
+        self.order = order
+        self.side = side  # buy/sell
+        self.time_stamp = time_stamp
+        self.event_type = 'SIGNAL'
+
+    def __str__(self):
+        out = 'Time: {}, Event: {}, Side: {}, Order: {}, Instrument: {}'.format(str(self.time_stamp),
+                                                                                      str(self.event_type),
+                                                                                      str(self.side),
+                                                                                      str(self.order),
+                                                                                      str(self.instrument),
+                                                                                      )
+        return out
+
+    def __repr__(self):
+        return str(self)
 
 
 class Order(Event):
