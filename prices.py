@@ -69,20 +69,22 @@ class FetchPrices(object):
 
 
 class FetchCassPrices(object):
-    def __init__(self, model=Forex):
+    def __init__(self, instruments, model, start_date, end_date=date.today()):
         self.model = model
-        # self.instruments = instruments
-        # self.start_date = start_date
-        # self.end_date = end_date
+        self.instruments = instruments
+        self.start_date = start_date
+        self.end_date = end_date
         self.connection = CqlClient(self.model)
         # self.connection.connect()
 
-    def get_quotes(self, instrument, start_date, end_date=date.today(), model=None):
-        if model is None:
-            model = self.model
-        query = model.objects.limit(None).filter(forex_pair=instrument, date__gte=start_date, date__lte=end_date)
-        cols = query.first().keys()
-        df = pd.DataFrame(columns=cols)
-        df = df.append([dict(row) for row in query.all()])
-        return df
+    def get_quotes(self):
+        out = list()
+        for instr in self.instruments:
+            query = self.model.objects.limit(None).filter(forex_pair=instr, date__gte=self.start_date,
+                                                          date__lte=self.end_date)
+            cols = query.first().keys()
+            df = pd.DataFrame(columns=cols)
+            df = df.append([dict(row) for row in query.all()])
+            out.append(df)
+        return out
 
