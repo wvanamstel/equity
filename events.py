@@ -11,12 +11,12 @@ class Tick(Event):
         self.event_type = 'TICK'
 
     def __str__(self):
-        out = 'Time: {}, Event: {}, Instrument: {}, Bid: {}, Ask: {}, Close: {}'.format(str(self.time_stamp),
-                                                                                        str(self.event_type),
-                                                                                        str(self.instrument),
-                                                                                        str(self.bid),
-                                                                                        str(self.ask),
-                                                                                        )
+        out = 'Time: {}, Event: {}, Instrument: {}, Bid: {}, Ask: {}'.format(str(self.time_stamp),
+                                                                             str(self.event_type),
+                                                                             str(self.instrument),
+                                                                             str(self.bid),
+                                                                             str(self.ask),
+                                                                             )
         return out
 
     def __repr__(self):

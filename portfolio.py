@@ -13,7 +13,7 @@ class SimplePortfolio(object):
         self.events_queue = events_queue
 
     def update_signal(self):
-
+        pass
 
     def generate_simple_order(self, signal):
         order = None
