@@ -43,7 +43,7 @@ class PricesFromDataFrame(Prices):
         name = row['Name']
         close_price = row['Close']
 
-        tick_event = Tick(instrument=name, time_stamp=time_stamp, close=close_price, open=None, high=None, low=None)
+        tick_event = Tick(instrument=name, time_stamp=time_stamp, bid=close_price, ask=close_price)
 
         self.event_queue.put(tick_event)
 
@@ -66,6 +66,7 @@ class FetchPrices(object):
             quotes[name]['Name'] = name
 
         return quotes
+
 
 class FetchCassPrices(object):
     def __init__(self, model=Forex):
