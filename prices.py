@@ -81,5 +81,8 @@ class FetchCassPrices(object):
         if model is None:
             model = self.model
         query = model.objects.limit(None).filter(forex_pair=instrument, date__gte=start_date, date__lte=end_date)
-        return query
+        cols = query.first().keys()
+        df = pd.DataFrame(columns=cols)
+        df = df.append([dict(row) for row in query.all()])
+        return df
 
