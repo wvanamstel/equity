@@ -75,16 +75,16 @@ class FetchCassPrices(object):
         self.start_date = start_date
         self.end_date = end_date
         self.connection = CqlClient(self.model)
-        # self.connection.connect()
+        self.quotes = dict()
 
-    def get_quotes(self):
-        out = list()
-        for instr in self.instruments:
-            query = self.model.objects.limit(None).filter(forex_pair=instr, date__gte=self.start_date,
-                                                          date__lte=self.end_date)
+    def get_quotes(self, instruments, model, start_date, end_date=date.today()):
+        for instr in instruments:
+            query = model.objects.limit(None).filter(ticker=instr, date__gte=start_date, date__lte=end_date)
             cols = query.first().keys()
             df = pd.DataFrame(columns=cols)
             df = df.append([dict(row) for row in query.all()])
-            out.append(df)
-        return out
+            del df["date"]
+            self.quotes[instr] = df
 
+    def get_iterator(self):
+        pass
