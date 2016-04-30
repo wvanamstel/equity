@@ -77,6 +77,7 @@ class FetchCassPrices(object):
         self.continue_backtest = True
         self.events_queue = events_queue
         self.instruments = instruments
+        self.current_prices = {key: dict() for key in instruments}
 
     def get_quotes(self, model, start_date, end_date):
         CqlClient(model)
@@ -120,17 +121,11 @@ class FetchCassPrices(object):
         )
 
         # Create decimalised prices for traded pair
-        # self.tickers[ticker]["bid"] = bid
-        # self.tickers[ticker]["ask"] = ask
-        # self.tickers[ticker]["timestamp"] = index
+        self.current_prices[ticker]["bid"] = bid
+        self.current_prices[ticker]["ask"] = ask
+        self.current_prices[ticker]["timestamp"] = index
 
         # Create the tick event for the queue
-        tick_event = Tick(ticker, index, bid, ask)
+        tick_event = Tick(instrument=ticker, bid=bid, ask=ask, time_stamp=index)
         self.events_queue.put(tick_event)
-
-
-
-fcp=FetchCassPrices(["wti", "brent"])
-fcp.get_quotes(FuturesMins, "2016-01-05", "2016-01-12")
-it = fcp.get_generator()
 
