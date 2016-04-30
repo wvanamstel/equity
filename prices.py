@@ -7,6 +7,7 @@ from datetime import date
 from events import Tick
 from cql.cluster import CqlClient
 from cql.models import *
+from settings.cf_mapping import symbol_cf_map
 
 getcontext().rounding = ROUND_HALF_DOWN
 
@@ -71,20 +72,19 @@ class FetchPrices(object):
 
 
 class FetchCassPrices(object):
-    def __init__(self, instruments, models, events_queue=None):
+    def __init__(self, instruments, events_queue=None):
         self.quotes = dict()
         self.generator = None
         self.continue_backtest = True
         self.events_queue = events_queue
         self.instruments = instruments
-        self.models = models
         self.current_prices = {key: dict() for key in instruments}
 
     def get_quotes(self, start_date, end_date):
         # TODO: add possibility to query from various column families; map symbol --> CF? then no need to pass CF
-        CqlClient(self.models)
+        CqlClient(symbol_cf_map[self.instruments[0]])
         for instr in self.instruments:
-            query = self.models.objects.limit(None).filter(ticker=instr, date__gte=start_date, date__lte=end_date)
+            query = symbol_cf_map[instr].objects.limit(None).filter(ticker=instr, date__gte=start_date, date__lte=end_date)
             cols = query.first().keys()
             df = pd.DataFrame(columns=cols)
             df = df.append([dict(row) for row in query.all()])
