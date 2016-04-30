@@ -8,7 +8,7 @@ class Backtest(object):
                  heartbeat=0.0, max_iters=100000):
         self.instruments = instruments
         self.events_queue = queue.Queue()
-        self.ticker = data_handler(quotes=quotes, event_queue=self.events_queue)
+        self.ticker = data_handler(instruments, event_queue=self.events_queue)
         self.strategy = strategy(self.instruments, self.events_queue, **strategy_params)
         self.equity = equity
         self.heartbeat = heartbeat
