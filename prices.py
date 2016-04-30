@@ -71,15 +71,16 @@ class FetchPrices(object):
 
 
 class FetchCassPrices(object):
-    def __init__(self, events_queue=None):
+    def __init__(self, instruments, events_queue=None):
         self.quotes = dict()
         self.generator = None
         self.continue_backtest = True
         self.events_queue = events_queue
+        self.instruments = instruments
 
-    def get_quotes(self, instruments, model, start_date, end_date):
+    def get_quotes(self, model, start_date, end_date):
         CqlClient(model)
-        for instr in instruments:
+        for instr in self.instruments:
             query = model.objects.limit(None).filter(ticker=instr, date__gte=start_date, date__lte=end_date)
             cols = query.first().keys()
             df = pd.DataFrame(columns=cols)
@@ -90,6 +91,16 @@ class FetchCassPrices(object):
         self.generator = self.get_generator()
 
     def get_generator(self):
+        # Find common intersecting index
+        df_index = self.quotes[self.instruments[0]].index
+        for symbol in self.instruments:
+            df_index = self.quotes[symbol].index.intersection(df_index)
+
+        # Reindex to common, dropna
+        for symbol in self.instruments:
+            self.quotes[symbol] = self.quotes[symbol].reindex(df_index).dropna()
+
+        # Concatenate
         return pd.concat(self.quotes.values()).sort_index().iterrows()
 
     def stream_tick(self):
@@ -119,7 +130,7 @@ class FetchCassPrices(object):
 
 
 
-fcp=FetchCassPrices()
-fcp.get_quotes(["wti", "brent"], FuturesMins, "2016-01-05", "2016-01-12")
-it = fcp.get_iterator()
+fcp=FetchCassPrices(["wti", "brent"])
+fcp.get_quotes(FuturesMins, "2016-01-05", "2016-01-12")
+it = fcp.get_generator()
 
