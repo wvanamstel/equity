@@ -72,16 +72,16 @@ class FetchPrices(object):
 
 
 class FetchCassPrices(object):
-    def __init__(self, instruments, events_queue=None):
+    def __init__(self, instruments,  start_date, end_date, events_queue=None):
         self.quotes = dict()
         self.generator = None
         self.continue_backtest = True
         self.events_queue = events_queue
         self.instruments = instruments
         self.current_prices = {key: dict() for key in instruments}
+        self.get_quotes(start_date, end_date)
 
     def get_quotes(self, start_date, end_date):
-        # TODO: add possibility to query from various column families; map symbol --> CF? then no need to pass CF
         CqlClient(symbol_cf_map[self.instruments[0]])
         for instr in self.instruments:
             query = symbol_cf_map[instr].objects.limit(None).filter(ticker=instr, date__gte=start_date, date__lte=end_date)
