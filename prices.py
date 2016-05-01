@@ -131,3 +131,12 @@ class FetchCassPrices(object):
         tick_event = Tick(instrument=ticker, bid=bid, ask=ask, time_stamp=index)
         self.events_queue.put(tick_event)
 
+    def get_best_bid_ask(self, symbol):
+        if symbol in self.instruments:
+            bid = self.current_prices[symbol]["bid"]
+            ask = self.current_prices[symbol]["ask"]
+            return bid, ask
+        else:
+            print("Bid/ask values for ticker {} are not available".format(symbol))
+            return None, None
+
