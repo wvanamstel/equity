@@ -17,13 +17,17 @@ class Strategy(object):
 
 
 class Test(Strategy):
-    def __init__(self, instrument, events_queue, division):
-        self.name = instrument
+    def __init__(self, instruments, events_queue, division):
+        self.names = instruments
         self.events_queue = events_queue
 
     def calc_signals(self, event):
         if random.random() > 0.5:
-            signal = Signal(self.name, "market", "buy", event.time_stamp)
+            if type(self.names) == list:
+                name = self.names[0]
+            else:
+                name = self.names
+            signal = Signal(name, "market", "buy", event.time_stamp)
             self.events_queue.put(signal)
 
 

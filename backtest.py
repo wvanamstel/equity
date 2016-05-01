@@ -18,7 +18,9 @@ class Backtest(object):
         self.execution = execution(self.events_queue)
         self.order_sizer = order_sizer()
         self.risk_manager = risk_manager()
-        self.portfolio = portfolio_handler(self.equity, self.events_queue, self.quote_data, self.order_sizer, self.risk_manager)
+        self.portfolio = portfolio_handler(equity=self.equity, events_queue=self.events_queue,
+                                           quote_data=self.quote_data, order_sizer=self.order_sizer,
+                                           risk_manager=self.risk_manager)
 
     def start_backtest(self):
         print("Running backtest")

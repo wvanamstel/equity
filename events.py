@@ -45,7 +45,7 @@ class Signal(Event):
 
 
 class Order(Event):
-    def __init__(self, instrument, order, size, side, time_stamp):
+    def __init__(self, instrument, size, side):
         self.instrument = instrument
         self.size = size
         self.side = side

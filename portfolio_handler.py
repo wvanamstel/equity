@@ -15,6 +15,7 @@ class PortfolioHandler(object):
         self.order_sizer = order_sizer
         self.risk_manager = risk_manager
         # self.portfolio = Portfolio(quote_data, equity)
+        self.portfolio = None
 
     def update_signal(self):
         pass
@@ -45,16 +46,17 @@ class PortfolioHandler(object):
         return PrelimOrder(signal_event.instrument, signal_event.side)
 
     def _put_orders_on_queue(self, order_events):
-        [self.events_queue.put(order) for order in order_events]
+        for order in order_events:
+            self.events_queue.put(order)
 
     def handle_signal(self, signal_event):
         prelim_order = self._prelim_order_from_signal(signal_event)
-        prelim_order_sized = self.order_sizer(prelim_order)
-        order_events = self.risk_manager.check_orders(prelim_order_sized)
+        prelim_order_sized = self.order_sizer.size_order(prelim_order)
+        order_events = self.risk_manager.check_orders(self.portfolio, prelim_order_sized)
         self._put_orders_on_queue(order_events)
 
 class PrelimOrder(object):
-    def __init__(self, instrument, side, quantity=0):
+    def __init__(self, instrument, side, size=0):
         self.instrument=instrument
         self.side=side
-        self.quantity=quantity
+        self.size=size
