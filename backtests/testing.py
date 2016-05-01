@@ -6,6 +6,7 @@ from portfolio_handler import PortfolioHandler
 from order_sizing.order_sizer import OrderSizer
 from strategy import Test
 from prices import FetchCassPrices
+from risk_management.risk_manager import RiskManager
 
 
 if __name__ == "__main__":
@@ -22,7 +23,8 @@ if __name__ == "__main__":
         strategy_params=strategy_params,
         portfolio_handler=PortfolioHandler,
         execution=SimExecution,
-        position_sizer=OrderSizer,
+        order_sizer=OrderSizer,
+        risk_manager=RiskManager,
     )
 
     backtest.start_backtest()
