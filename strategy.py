@@ -12,7 +12,7 @@ class Strategy(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def calc_signals(self):
+    def calc_signals(self, event):
         raise NotImplementedError
 
 
@@ -21,7 +21,7 @@ class Test(Strategy):
         self.name = instrument
         self.events_queue = events_queue
 
-    def calc_signals(self):
+    def calc_signals(self, event):
         if random.random() > 0.5:
             signal = Signal(self.name, "market", "buy", event.time_stamp)
             self.events_queue.put(signal)
