@@ -12,17 +12,18 @@ from prices import FetchCassPrices
 
 if __name__ == "__main__":
     instruments = ['brent', "wti"]
+    dates = {'start_date': "2016-01-01",
+             "end_date": "2016-01-08"}
     strategy_params = {"division": 5}
-    fetch_prices = FetchCassPrices(instruments)
-    prices = fetch_prices.get_quotes()
 
     backtest = Backtest(
         instruments=instruments,
         data_handler=FetchCassPrices,
+        dates=dates,
         strategy=Test,
         strategy_params=strategy_params,
         portfolio="niets",
-        execution=SimExecution
+        execution=SimExecution,
     )
 
     backtest.start_backtest()
