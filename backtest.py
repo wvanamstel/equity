@@ -2,13 +2,15 @@ import queue
 import time
 import pdb
 
+from decimal import Decimal
+
 
 class Backtest(object):
-    def __init__(self, quotes, instruments, data_handler, strategy, strategy_params, portfolio, execution, equity=10000,
-                 heartbeat=0.0, max_iters=100000):
-        self.instruments = instruments
+    def __init__(self, instruments, data_handler, dates, strategy, strategy_params, portfolio, execution,
+                 equity=Decimal(10000.00), heartbeat=0.0, max_iters=10):
         self.events_queue = queue.Queue()
-        self.ticker = data_handler(instruments, event_queue=self.events_queue)
+        self.instruments = instruments
+        self.quote_data = data_handler(instruments, events_queue=self.events_queue, **dates)
         self.strategy = strategy(self.instruments, self.events_queue, **strategy_params)
         self.equity = equity
         self.heartbeat = heartbeat
@@ -19,11 +21,11 @@ class Backtest(object):
     def start_backtest(self):
         print("Running backtest")
         iters = 0
-        while iters < self.max_iters and not self.ticker.end_backtest:
+        while iters < self.max_iters and self.quote_data.continue_backtest:
             try:
                 event = self.events_queue.get(block=False)
             except queue.Empty:
-                self.ticker.stream_tick()
+                self.quote_data.stream_tick()
             else:
                 if event is not None:
                     if event.event_type == 'TICK':
