@@ -3,9 +3,7 @@ from decimal import Decimal
 from backtest import Backtest
 from execution import SimExecution
 from portfolio_handler import PortfolioHandler
-# from position_sizer import PositionSizer
-
-
+from order_sizing.order_sizer import OrderSizer
 from strategy import Test
 from prices import FetchCassPrices
 
@@ -22,8 +20,9 @@ if __name__ == "__main__":
         dates=dates,
         strategy=Test,
         strategy_params=strategy_params,
-        portfolio=PortfolioHandler,
+        portfolio_handler=PortfolioHandler,
         execution=SimExecution,
+        position_sizer=OrderSizer,
     )
 
     backtest.start_backtest()

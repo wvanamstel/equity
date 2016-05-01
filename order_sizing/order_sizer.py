@@ -1,4 +1,4 @@
-class PositionSizer(object):
+class OrderSizer(object):
     def __init__(self):
         pass
 
