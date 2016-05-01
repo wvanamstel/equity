@@ -8,11 +8,11 @@ from events import Fill, Order
 
 
 class PortfolioHandler(object):
-    def __init__(self, events_queue, equity, quote_data):
+    def __init__(self, events_queue, equity, quote_data, order_sizer):
         self.events_queue = events_queue
         self.equity = equity
         self.quote_data = quote_data
-        # self.position_sizer = position_sizer
+        self.order_sizer = order_sizer
         # self.risk_manager = risk_manager
         # self.portfolio = Portfolio(quote_data, equity)
 
@@ -44,10 +44,9 @@ class PortfolioHandler(object):
     def _prelim_order_from_signal(self, signal_event):
         return PrelimOrder(signal_event.instrument, signal_event.side)
 
-
-    def handle_signal(self):
-        pass
-
+    def handle_signal(self, signal_event):
+        prelim_order = self._prelim_order_from_signal(signal_event)
+        prelim_order_sized = self.order_sizer(prelim_order)
 
 class PrelimOrder(object):
     def __init__(self, instrument, side, quantity=0):
