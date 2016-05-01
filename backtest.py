@@ -6,7 +6,7 @@ from decimal import Decimal
 
 
 class Backtest(object):
-    def __init__(self, instruments, data_handler, dates, strategy, strategy_params, portfolio, execution,
+    def __init__(self, instruments, data_handler, dates, strategy, strategy_params, portfolio_handler, execution,
                  equity=Decimal(10000.00), heartbeat=0.0, max_iters=10):
         self.events_queue = queue.Queue()
         self.instruments = instruments
@@ -15,8 +15,8 @@ class Backtest(object):
         self.equity = equity
         self.heartbeat = heartbeat
         self.max_iters = max_iters
-        self.portfolio = portfolio
-        self.execution = execution
+        self.portfolio = portfolio_handler(self.equity, self.events_queue, self.quote_data)
+        self.execution = execution(self.events_queue)
 
     def start_backtest(self):
         print("Running backtest")
@@ -31,7 +31,8 @@ class Backtest(object):
                     if event.event_type == 'TICK':
                         self.strategy.calc_signals(event)
                     elif event.event_type == 'SIGNAL':
-                        self.execution.execute_signal(event)
+                        # self.execution.execute_signal(event)
+                        self.portfolio.handle_signal(event)
                     elif event.event_type == 'ORDER':
                         self.execution.execute_order(event)
 

@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from backtest import Backtest
 from execution import SimExecution
-from portfolio import SimplePortfolio
+from portfolio_handler import PortfolioHandler
 # from position_sizer import PositionSizer
 
 
@@ -22,7 +22,7 @@ if __name__ == "__main__":
         dates=dates,
         strategy=Test,
         strategy_params=strategy_params,
-        portfolio="niets",
+        portfolio=PortfolioHandler,
         execution=SimExecution,
     )
 

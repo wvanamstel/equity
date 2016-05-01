@@ -2,15 +2,19 @@ import datetime as dt
 import numpy as np
 import pandas as pd
 
-# from abc import ABCMeta, abstractmethod
 from math import floor
 
 from events import Fill, Order
 
 
-class SimplePortfolio(object):
-    def __init__(self, events_queue):
+class PortfolioHandler(object):
+    def __init__(self, events_queue, equity, quote_data):
         self.events_queue = events_queue
+        self.equity = equity
+        self.quote_data = quote_data
+        # self.position_sizer = position_sizer
+        # self.risk_manager = risk_manager
+        # self.portfolio = Portfolio(quote_data, equity)
 
     def update_signal(self):
         pass
@@ -36,3 +40,17 @@ class SimplePortfolio(object):
         # if direction == 'EXIT' and cur_quantity < 0:
         #     order = Order(symbol, order_type, abs(cur_quantity), 'BUY')
         return order
+
+    def _prelim_order_from_signal(self, signal_event):
+        return PrelimOrder(signal_event.instrument, signal_event.side)
+
+
+    def handle_signal(self):
+        pass
+
+
+class PrelimOrder(object):
+    def __init__(self, instrument, side, quantity=0):
+        self.instrument=instrument
+        self.side=side
+        self.quantity=quantity
