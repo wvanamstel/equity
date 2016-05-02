@@ -64,20 +64,21 @@ class Order(Event):
         return str(self)
 
 class Fill(Event):
-    def __init__(self, time_stamp, symbol, quantity, side, price):
+    def __init__(self, time_stamp, instrument, size, side, price, exchange, commission):
         self.time_stamp= time_stamp
         self.event_type = "FILL"
-        self.symbol = symbol
-        self.quantity = quantity
+        self.instrument = instrument
+        self.size = size
         self.side = side
         self.price = price
+        self.commission = commission
 
     def __str__(self):
-        out = "Time: {}, Event: {}, Side:{}, Order: {}, Instrument: {}, Quantity: {}, Price: {}".format(str(self.event_type),
+        out = "Time: {}, Event: {}, Side:{}, Order: {}, Instrument: {}, Quantity: {}, Price: {}".format(str(self.time_stamp),
                                                                                                         str(self.event_type),
                                                                                                         str(self.side),
-                                                                                                        str(self.symbol),
-                                                                                                        str(self.quantity),
+                                                                                                        str(self.instrument),
+                                                                                                        str(self.size),
                                                                                                         str(self.price),
                                                                                                         )
     def __repr__(self):

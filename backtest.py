@@ -15,7 +15,7 @@ class Backtest(object):
         self.equity = equity
         self.heartbeat = heartbeat
         self.max_iters = max_iters
-        self.execution = execution(self.events_queue)
+        self.execution = execution(self.events_queue, self.quote_data)
         self.order_sizer = order_sizer()
         self.risk_manager = risk_manager()
         self.portfolio = portfolio_handler(equity=self.equity, events_queue=self.events_queue,
