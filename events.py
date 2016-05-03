@@ -63,6 +63,7 @@ class Order(Event):
     def __repr__(self):
         return str(self)
 
+
 class Fill(Event):
     def __init__(self, time_stamp, instrument, size, side, price, exchange, commission):
         self.time_stamp= time_stamp
@@ -72,15 +73,19 @@ class Fill(Event):
         self.side = side
         self.price = price
         self.commission = commission
+        self.exchange = exchange
 
     def __str__(self):
-        out = "Time: {}, Event: {}, Side:{}, Order: {}, Instrument: {}, Quantity: {}, Price: {}".format(str(self.time_stamp),
-                                                                                                        str(self.event_type),
-                                                                                                        str(self.side),
-                                                                                                        str(self.instrument),
-                                                                                                        str(self.size),
-                                                                                                        str(self.price),
-                                                                                                        )
+        out = "Time: {}, Event: {}, Side:{}, Size: {}, Instrument: {}, Price: {}, Commission: {}".format(str(self.time_stamp),
+                                                                                                         str(self.event_type),
+                                                                                                         str(self.side),
+                                                                                                         str(self.size),
+                                                                                                         str(self.instrument),
+                                                                                                         str(self.price),
+                                                                                                         str(self.commission),
+                                                                                                         )
+        return out
+
     def __repr__(self):
         return str(self)
 

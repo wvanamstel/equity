@@ -36,10 +36,11 @@ class SimExecution(ExecutionHandler):
 
             # Set a dummy exchange and calculate trade commission
             exchange = "BATS"
-            commission = self.calculate_commission() +self.simulate_slippage(size=size)
+            commission = self.calculate_commission() + self.simulate_slippage(size=size)
 
             # Create the FillEvent and place on the events queue
-            fill_event = Fill(timestamp, instrument, side, size, exchange, fill_price, commission)
+            fill_event = Fill(time_stamp=timestamp, instrument=instrument, side=side, size=size,
+                              exchange=exchange, price=fill_price, commission=commission)
             self.events_queue.put(fill_event)
 
     def calculate_commission(self):
