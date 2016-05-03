@@ -43,7 +43,7 @@ class PortfolioHandler(object):
         return order
 
     def _prelim_order_from_signal(self, signal_event):
-        return PrelimOrder(signal_event.instrument, signal_event.side)
+        return PrelimOrder(signal_event.instrument, signal_event.side, signal_event.order)
 
     def _put_orders_on_queue(self, order_events):
         for order in order_events:
@@ -74,8 +74,9 @@ class PortfolioHandler(object):
 
 
 class PrelimOrder(object):
-    def __init__(self, instrument, side, size=0):
-        self.instrument=instrument
-        self.side=side
-        self.size=size
+    def __init__(self, instrument, side, order_type, size=0):
+        self.instrument = instrument
+        self.side = side
+        self.size = size
+        self.order = order_type
         self.time_stamp = None

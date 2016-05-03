@@ -32,7 +32,7 @@ class Signal(Event):
         self.event_type = 'SIGNAL'
 
     def __str__(self):
-        out = 'Time: {}, Event: {}, Side: {}, Order: {}, Instrument: {}'.format(str(self.time_stamp),
+        out = 'Time: {}, Event: {}, Side: {}, Order type: {}, Instrument: {}'.format(str(self.time_stamp),
                                                                                       str(self.event_type),
                                                                                       str(self.side),
                                                                                       str(self.order),
@@ -45,20 +45,22 @@ class Signal(Event):
 
 
 class Order(Event):
-    def __init__(self, instrument, size, side, time_stamp):
+    def __init__(self, instrument, size, side, order_type, time_stamp):
         self.instrument = instrument
         self.size = size
         self.side = side
+        self.order_type = order_type
         self.time_stamp = time_stamp
         self.event_type = 'ORDER'
 
     def __str__(self):
-        out = 'Time: {}, Event: {}, Side: {}, Size:, Instrument: {}'.format(
+        out = 'Time: {}, Event: {}, Side: {}, Size: {}, Instrument: {}, Order type: {}'.format(
             str(self.time_stamp),
             str(self.event_type),
             str(self.side),
             str(self.size),
             str(self.instrument),
+            str(self.order_type),
         )
         return out
 
