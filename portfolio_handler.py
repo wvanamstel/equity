@@ -5,7 +5,7 @@ import pandas as pd
 from math import floor
 
 from events import Fill, Order
-
+from portfolio.portfolio import Portfolio
 
 class PortfolioHandler(object):
     def __init__(self, events_queue, equity, quote_data, order_sizer, risk_manager):
@@ -14,8 +14,7 @@ class PortfolioHandler(object):
         self.quote_data = quote_data
         self.order_sizer = order_sizer
         self.risk_manager = risk_manager
-        # self.portfolio = Portfolio(quote_data, equity)
-        self.portfolio = None
+        self.portfolio = Portfolio(quote_data, equity)
 
     def update_signal(self):
         pass
