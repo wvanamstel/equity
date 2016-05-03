@@ -55,6 +55,19 @@ class PortfolioHandler(object):
         order_events = self.risk_manager.check_orders(self.portfolio, prelim_order_sized)
         self._put_orders_on_queue(order_events)
 
+    def handle_fill(self, fill_event):
+        self.update_portfolio(fill_event)
+
+    def update_portfolio(self, fill_event):
+        side = fill_event.side
+        instrument = fill_event.instrument
+        size = fill_event.size
+        price = fill_event.price
+        commission = fill_event.commission
+
+        # Create or modify the position from the fill info
+        self.portfolio.transact_position(side, instrument, size, price, commission)
+
 class PrelimOrder(object):
     def __init__(self, instrument, side, size=0):
         self.instrument=instrument

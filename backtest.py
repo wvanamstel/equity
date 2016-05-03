@@ -18,9 +18,9 @@ class Backtest(object):
         self.execution = execution(self.events_queue, self.quote_data)
         self.order_sizer = order_sizer()
         self.risk_manager = risk_manager()
-        self.portfolio = portfolio_handler(equity=self.equity, events_queue=self.events_queue,
-                                           quote_data=self.quote_data, order_sizer=self.order_sizer,
-                                           risk_manager=self.risk_manager)
+        self.portfolio_handler = portfolio_handler(equity=self.equity, events_queue=self.events_queue,
+                                                   quote_data=self.quote_data, order_sizer=self.order_sizer,
+                                                   risk_manager=self.risk_manager)
 
     def start_backtest(self):
         print("Running backtest")
@@ -35,9 +35,11 @@ class Backtest(object):
                     if event.event_type == 'TICK':
                         self.strategy.calc_signals(event)
                     elif event.event_type == 'SIGNAL':
-                        self.portfolio.handle_signal(event)
+                        self.portfolio_handler.handle_signal(event)
                     elif event.event_type == 'ORDER':
                         self.execution.execute_order(event)
+                    elif event.event_type == "FILL":
+                        self.portfolio_handler.handle_fill(event)
 
             time.sleep(self.heartbeat)
             iters += 1
