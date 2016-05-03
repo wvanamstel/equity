@@ -29,7 +29,7 @@ class SimExecution(ExecutionHandler):
 
             # Obtain the fill price
             bid, ask = self.quote_data.get_best_bid_ask(instrument)
-            if event.action == "BOT":
+            if event.side.lower() == "buy":
                 fill_price = Decimal(str(ask))
             else:
                 fill_price = Decimal(str(bid))
