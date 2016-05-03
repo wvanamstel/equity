@@ -1,13 +1,12 @@
 import queue
 import time
-import pdb
-
+import datetime as dt
 from decimal import Decimal
 
 
 class Backtest(object):
     def __init__(self, instruments, data_handler, dates, strategy, strategy_params, portfolio_handler, execution,
-                 order_sizer, risk_manager, cash=Decimal(10000.00), heartbeat=0.0, max_iters=10):
+                 order_sizer, risk_manager, cash=Decimal(10000.00), heartbeat=0.0, max_iters=100):
         self.events_queue = queue.Queue()
         self.instruments = instruments
         self.quote_data = data_handler(instruments, events_queue=self.events_queue, **dates)
@@ -25,7 +24,6 @@ class Backtest(object):
     def start_backtest(self):
         print("Running backtest")
         iters = 0
-        ticks = 0
         while iters < self.max_iters and self.quote_data.continue_backtest:
             try:
                 event = self.events_queue.get(block=False)
@@ -36,12 +34,15 @@ class Backtest(object):
                     if event.event_type == 'TICK':
                         self.strategy.calc_signals(event)
                         self.portfolio_handler.update_portfolio_value()
-                        ticks += 1
+                        print("Time: {} {}".format(dt.datetime.utcnow(), event))
                     elif event.event_type == 'SIGNAL':
+                        print(event)
                         self.portfolio_handler.handle_signal(event)
                     elif event.event_type == 'ORDER':
+                        print(event)
                         self.execution.execute_order(event)
                     elif event.event_type == "FILL":
+                        print(event)
                         self.portfolio_handler.handle_fill(event)
 
             time.sleep(self.heartbeat)

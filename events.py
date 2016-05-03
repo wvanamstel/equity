@@ -45,14 +45,16 @@ class Signal(Event):
 
 
 class Order(Event):
-    def __init__(self, instrument, size, side):
+    def __init__(self, instrument, size, side, time_stamp):
         self.instrument = instrument
         self.size = size
         self.side = side
+        self.time_stamp = time_stamp
         self.event_type = 'ORDER'
 
     def __str__(self):
-        out = 'Event: {}, Side: {}, Size:, Instrument: {}'.format(
+        out = 'Time: {}, Event: {}, Side: {}, Size:, Instrument: {}'.format(
+            str(self.time_stamp),
             str(self.event_type),
             str(self.side),
             str(self.size),
