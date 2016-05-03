@@ -8,13 +8,13 @@ from events import Fill, Order
 from portfolio.portfolio import Portfolio
 
 class PortfolioHandler(object):
-    def __init__(self, events_queue, equity, quote_data, order_sizer, risk_manager):
+    def __init__(self, events_queue, cash, quote_data, order_sizer, risk_manager):
         self.events_queue = events_queue
-        self.equity = equity
+        self.cash = cash
         self.quote_data = quote_data
         self.order_sizer = order_sizer
         self.risk_manager = risk_manager
-        self.portfolio = Portfolio(quote_data, equity)
+        self.portfolio = Portfolio(quote_data, cash)
 
     def update_signal(self):
         pass
