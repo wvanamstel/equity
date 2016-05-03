@@ -7,6 +7,7 @@ from math import floor
 from events import Fill, Order
 from portfolio.portfolio import Portfolio
 
+
 class PortfolioHandler(object):
     def __init__(self, events_queue, cash, quote_data, order_sizer, risk_manager):
         self.events_queue = events_queue
@@ -66,6 +67,10 @@ class PortfolioHandler(object):
 
         # Create or modify the position from the fill info
         self.portfolio.transact_position(side, instrument, size, price, commission)
+
+    def update_portfolio_value(self):
+        self.portfolio._update_portfolio()
+
 
 class PrelimOrder(object):
     def __init__(self, instrument, side, size=0):

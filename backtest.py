@@ -25,6 +25,7 @@ class Backtest(object):
     def start_backtest(self):
         print("Running backtest")
         iters = 0
+        ticks = 0
         while iters < self.max_iters and self.quote_data.continue_backtest:
             try:
                 event = self.events_queue.get(block=False)
@@ -34,6 +35,8 @@ class Backtest(object):
                 if event is not None:
                     if event.event_type == 'TICK':
                         self.strategy.calc_signals(event)
+                        self.portfolio_handler.update_portfolio_value()
+                        ticks += 1
                     elif event.event_type == 'SIGNAL':
                         self.portfolio_handler.handle_signal(event)
                     elif event.event_type == 'ORDER':
