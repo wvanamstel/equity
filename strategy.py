@@ -22,14 +22,14 @@ class Test(Strategy):
         self.events_queue = events_queue
 
     def calc_signals(self, event):
-        if random.random() > 0.85:
+        if random.random() > 0.95:
             if type(self.names) == list:
                 name = self.names[0]
             else:
                 name = self.names
             signal = Signal(name, "market", "buy", event.time_stamp)
             self.events_queue.put(signal)
-        if random.random() < 0.15:
+        if random.random() < 0.05:
             if type(self.names) == list:
                 name = self.names[0]
             else:
