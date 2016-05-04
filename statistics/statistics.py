@@ -1,6 +1,8 @@
 import os, os.path
 import pandas as pd
 import matplotlib
+import pyfolio as pf
+import pytz
 try:
     matplotlib.use('TkAgg')
 except:
@@ -93,3 +95,8 @@ class Statistics():
 
         # Plot the figure
         plt.show()
+
+    def create_returns_tearsheet(self):
+        df = pd.read_csv(os.path.join(settings.OUTPUT_DIR, "equity.csv"), header=None)
+        df["rets"] = df[1].pct_change()
+        ts = pd.Series(df["rets"], index=pd.DatetimeIndex(df[0], tz=pytz.utc))
