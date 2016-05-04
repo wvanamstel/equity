@@ -47,7 +47,7 @@ class PortfolioHandler(object):
 
     def _put_orders_on_queue(self, order_events):
         for order in order_events:
-            order.time_stamp = dt.datetime.utcnow()
+            # order.time_stamp = dt.datetime.utcnow()
             self.events_queue.put(order)
 
     def handle_signal(self, signal_event):

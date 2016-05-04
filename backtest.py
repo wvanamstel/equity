@@ -24,6 +24,7 @@ class Backtest(object):
         self.portfolio_handler = portfolio_handler(cash=self.cash, events_queue=self.events_queue,
                                                    quote_data=self.quote_data, order_sizer=self.order_sizer,
                                                    risk_manager=self.risk_manager)
+        self.current_time = None
 
         # Ugly hack to clear file for each backtest run
         # TODO: write logic to have some sort of unique identifyer for each backtest run
@@ -41,12 +42,13 @@ class Backtest(object):
             else:
                 if event is not None:
                     if event.event_type == 'TICK':
+                        self.current_time = event.time_stamp
                         self._append_equity_state()
                         self.strategy.calc_signals(event)
                         self.portfolio_handler.update_portfolio_value()
                         ticks += 1
                         if ticks % 100 == 0:
-                            print("Time: {} {}".format(dt.datetime.utcnow(), event))
+                            print(event)
                     elif event.event_type == 'SIGNAL':
                         print(event)
                         self.portfolio_handler.handle_signal(event)
@@ -65,7 +67,7 @@ class Backtest(object):
         with open(self.equity_file, "a") as eqfile:
             eqfile.write(
                 "%s,%s\n" % (
-                    dt.datetime.utcnow(), cur_port_state["equity"]
+                    self.current_time, cur_port_state["equity"]
                 )
             )
 
