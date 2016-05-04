@@ -7,6 +7,7 @@ from order_sizing.order_sizer import OrderSizer
 from strategy import Test
 from prices import FetchCassPrices
 from risk_management.risk_manager import RiskManager
+from statistics.statistics import Statistics
 
 
 if __name__ == "__main__":
@@ -28,3 +29,6 @@ if __name__ == "__main__":
     )
 
     backtest.start_backtest()
+    stats = Statistics()
+    stats.generate_results()
+    stats.plot_results()
