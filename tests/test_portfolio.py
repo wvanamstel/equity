@@ -18,5 +18,17 @@ class TestPortfolio(object):
         cls.initial_cash = Decimal("10000.00")
         cls.portfolio = Portfolio(cls.quotes, cls.initial_cash)
 
-    def test_portfolio_object(self):
+    def test_init_portfolio_object(self):
         assert self.portfolio.cur_cash == self.initial_cash
+        assert self.portfolio.init_cash == self.initial_cash
+        assert self.portfolio.positions == {}
+        assert self.portfolio.realised_pnl == Decimal("0.0")
+        assert self.portfolio.unrealised_pnl == Decimal("0.0")
+
+    def test_portfolio_transactions(self):
+        pass
+
+    def test_commission_accounting(self):
+        pass
+
+
