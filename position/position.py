@@ -41,8 +41,8 @@ class Position(object):
 
     def _calculate_initial_value(self):
         """
-        Depending upon whether the action was a buy or sell ("BOT"
-        or "SLD") calculate the average bought cost, the total bought
+        Depending upon whether the action was a buy or sell ("buy"
+        or "sell") calculate the average bought cost, the total bought
         cost, the average price and the cost basis.
 
         Finally, calculate the net total with and without commission.
@@ -110,11 +110,11 @@ class Position(object):
         self.total_commission += commission
 
         # Adjust total bought and sold
-        if side == "BOT":
+        if side == "buy":
             self.avg_bot = (
                 (self.avg_bot*self.buys + price*quantity)/(self.buys + quantity)
             ).quantize(FIVEPLACES)
-            if self.side != "SLD":
+            if self.side != "sell":
                 self.avg_price = (
                     (
                         self.avg_price*self.buys +
@@ -129,7 +129,7 @@ class Position(object):
             self.avg_sld = (
                 (self.avg_sld*self.sells + price*quantity)/(self.sells + quantity)
             ).quantize(FIVEPLACES)
-            if self.side != "BOT":
+            if self.side != "buy":
                 self.avg_price = (
                     (
                         self.avg_price*self.sells +
