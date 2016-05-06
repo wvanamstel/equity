@@ -3,12 +3,11 @@ from portfolio.portfolio import Portfolio
 
 
 class Quotes(object):
-    @staticmethod
     def get_best_bid_ask(self, instrument):
         nbbo = {"abc": {"bid": Decimal("101.46"), "ask": Decimal("101.77")},
                 "xyz": {"bid": Decimal("33.72"), "ask": Decimal("33.75")},
                 }
-        return nbbo[instrument]
+        return nbbo[instrument]["bid"], nbbo[instrument]["ask"]
 
 
 class TestPortfolio(object):
@@ -17,6 +16,7 @@ class TestPortfolio(object):
         cls.quotes = Quotes()
         cls.initial_cash = Decimal("10000.00")
         cls.portfolio = Portfolio(cls.quotes, cls.initial_cash)
+        cls.commission = Decimal("5.00")
 
     def test_init_portfolio_object(self):
         assert self.portfolio.cur_cash == self.initial_cash
@@ -29,6 +29,10 @@ class TestPortfolio(object):
         pass
 
     def test_commission_accounting(self):
-        pass
-
+        self.setup()
+        self.portfolio.transact_position("buy", "abc", 100, Decimal("103.33"), self.commission)
+        self.portfolio.transact_position("sell", "abc", 100, Decimal("103.33"), self.commission)
+        assert self.portfolio.cur_cash == self.initial_cash - 2 * self.commission
+        assert self.portfolio.realised_pnl == -2 * self.commission
+        assert self.portfolio.unrealised_pnl == Decimal("0.00")
 
