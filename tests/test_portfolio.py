@@ -14,7 +14,7 @@ class TestPortfolio(object):
     @classmethod
     def setup(cls):
         cls.quotes = Quotes()
-        cls.initial_cash = Decimal("10000.00")
+        cls.initial_cash = Decimal("100000.00")
         cls.portfolio = Portfolio(cls.quotes, cls.initial_cash)
         cls.commission = Decimal("5.00")
 
@@ -25,14 +25,25 @@ class TestPortfolio(object):
         assert self.portfolio.realised_pnl == Decimal("0.0")
         assert self.portfolio.unrealised_pnl == Decimal("0.0")
 
-    def test_portfolio_transactions(self):
-        pass
-
     def test_commission_accounting(self):
-        self.setup()
+        self.setup()  # clear portfolio positions from previous tests
         self.portfolio.transact_position("buy", "abc", 100, Decimal("103.33"), self.commission)
         self.portfolio.transact_position("sell", "abc", 100, Decimal("103.33"), self.commission)
         assert self.portfolio.cur_cash == self.initial_cash - 2 * self.commission
         assert self.portfolio.realised_pnl == -2 * self.commission
         assert self.portfolio.unrealised_pnl == Decimal("0.00")
 
+    def test_portfolio_transactions(self):
+        self.setup()
+        self.portfolio.transact_position("buy", "abc", 100, Decimal("103.33"), self.commission)
+        self.portfolio.transact_position("buy", "abc", 150, Decimal("102.775"), self.commission)
+        self.portfolio.transact_position("sell", "abc", 50, Decimal("104.08"), self.commission)
+        self.portfolio.transact_position("buy", "xyz", 200, Decimal("33.67"), self.commission)
+        self.portfolio.transact_position("sell", "xyz", 100, Decimal("33.55"), self.commission)
+        self.portfolio.transact_position("sell", "xyz", 100, Decimal("34.448"), self.commission)
+        assert self.portfolio.cur_cash == Decimal("79520.55") - 6 * self.commission
+        assert self.portfolio.realised_pnl == Decimal("-41.65")
+
+
+pt=TestPortfolio()
+pt.test_portfolio_transactions()
