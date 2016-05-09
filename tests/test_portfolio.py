@@ -43,6 +43,7 @@ class TestPortfolio(object):
         self.portfolio.transact_position("sell", "xyz", 100, Decimal("34.448"), self.commission)
         assert self.portfolio.cur_cash == Decimal("79520.55") - 6 * self.commission
         assert self.portfolio.realised_pnl == Decimal("-41.65")
+        assert self.portfolio.unrealised_pnl == Decimal("-277.400")
 
 
 pt=TestPortfolio()
