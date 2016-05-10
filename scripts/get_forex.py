@@ -6,6 +6,7 @@ import calendar
 import os
 import glob
 import multiprocessing as mp
+import numpy as np
 import ipdb
 
 from cql.models import Forex, FuturesTicks, FuturesMins
@@ -91,6 +92,7 @@ class GetFutures(object):
         self.tsys = ["tsy2y", "tsy5y", "tsy10y", "tsy30y"]
         self.big_ones = ["wti", "spmini", "djmini", "nq100"]
         self.all_futures = self.energy + self.metals + self.ags + self.indices + self.tsys
+        self.timestamps = set()
         if cass_conn:
             try:
                 self.cl = CqlClient(FuturesMins)
@@ -356,6 +358,25 @@ class GetFutures(object):
                     model.create(**payload)
                     if i % 10000 == 0:
                         print("Inserting {} from file {} into C* model {}".format(i, file_name, model.column_family_name()))
+
+    def form_timestamp(self, original_time_stamp):
+        # In case of tick data, only second resolution is available. Use a logistic function to add milliseconds
+        if original_time_stamp in self.timestamps:
+            i = 0
+            while True:
+                to_add = 1/(1 + np.exp(-1*i))
+                time_stamp = original_time_stamp + dt.timedelta(seconds=to_add)
+                if time_stamp in self.timestamps:
+                    i += 1
+                else:
+                    self.timestamps.add(time_stamp)
+                    return time_stamp
+        else:
+            self.timestamps.add(original_time_stamp)
+            return original_time_stamp
+
+
+
 
     def insert_all(self, num_workers=8):
         # Convenience function to insert all files into c* models
