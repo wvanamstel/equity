@@ -362,9 +362,9 @@ class GetFutures(object):
     def form_timestamp(self, original_time_stamp):
         # In case of tick data, only second resolution is available. Use a logistic function to add milliseconds
         if original_time_stamp in self.timestamps:
-            i = 0
+            i = 1
             while True:
-                to_add = 1/(1 + np.exp(-1*i))
+                to_add = 1/(1 + np.exp(-1*i)) - 0.5
                 time_stamp = original_time_stamp + dt.timedelta(seconds=to_add)
                 if time_stamp in self.timestamps:
                     i += 1
